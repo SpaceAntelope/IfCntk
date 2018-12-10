@@ -1,0 +1,5 @@
+
+storage: none
+source https://nuget.org/api/v2
+nuget MathNet.Numerics
+nuget MathNet.Numerics.FSharp
