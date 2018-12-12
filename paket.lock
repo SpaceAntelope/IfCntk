@@ -7,6 +7,8 @@ NUGET
     CNTK.Deps.MKL (2.6)
     CNTK.Deps.OpenCV.Zip (2.6)
     Deedle (1.2.5)
+    FSharp.Charting (2.1)
+      FSharp.Core (>= 4.0.0.1)
     FSharp.Core (4.5.4)
       System.Collections (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Console (>= 4.0) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)

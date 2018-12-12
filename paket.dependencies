@@ -5,3 +5,4 @@ nuget CNTK.CPUOnly
 nuget FsLab
 nuget MathNet.Numerics
 nuget MathNet.Numerics.FSharp
+nuget FSharp.Charting
