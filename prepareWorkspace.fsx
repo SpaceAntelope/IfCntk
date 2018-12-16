@@ -1,4 +1,3 @@
-//#r @"C:\Users\cernu\Documents\Code\IfCntk\packages\CNTK.CPUOnly\lib\netstandard2.0\Cntk.Core.Managed-2.6.dll"
 open System.Reflection
 open System.Text.RegularExpressions
 open System.IO
