@@ -81,22 +81,25 @@ let binPaths kind =
             yield! Release |> DepPaths
     }
 
-if "bin"
-   |> Directory.Exists
-   |> not
-then Directory.CreateDirectory("bin") |> ignore
-else
-    Directory.GetFiles("bin")
-    |> Array.iter (fun file ->
-           printfn "Removing file '%s'..." file
-           FileInfo(file).Delete())
-binPaths Release
-|> Array.ofSeq
-|> Array.collect (fun path -> Directory.GetFiles(path, "*.dll"))
-|> Array.map (fun path ->
-       let packageIndex = path.IndexOf("package")
-       printfn "Copying from '%s'" <| path.Substring(packageIndex)
-       File.Copy(path, Path.Combine("bin", Path.GetFileName(path)))
-       FileInfo(path).Length)
-|> Array.sum
-|> fun sum -> printfn "Copied %.02fMB" (float (sum/1024L/1024L))
+let createOrCleanLocalBinFolder folderName =
+    if folderName
+       |> Directory.Exists
+       |> not
+    then Directory.CreateDirectory(folderName) |> ignore
+    else
+        Directory.GetFiles(folderName)
+        |> Array.iter (fun file ->
+               printfn "Removing file '%s'..." file
+               FileInfo(file).Delete())
+
+let copyDependenciesToLocalFolder binFolder dependencyKind =
+    binPaths dependencyKind
+    |> Array.ofSeq
+    |> Array.collect (fun path -> Directory.GetFiles(path, "*.dll"))
+    |> Array.map (fun path ->
+           let packageIndex = path.IndexOf("package")
+           printfn "Copying from '%s'" <| path.Substring(packageIndex)
+           File.Copy(path, Path.Combine(binFolder, Path.GetFileName(path)))
+           FileInfo(path).Length)
+    |> Array.sum
+    |> fun sum -> printfn "Copied %.02fMB" (float (sum/1024L/1024L))
