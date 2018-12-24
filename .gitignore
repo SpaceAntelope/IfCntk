@@ -5,6 +5,11 @@
 
 .ipynb_checkpoints/
 .paket/load/
+
+# Generated from 'Preparing workspace.ipynb'
+paket.dependencies
+paket.lock
+
 # User-specific files
 *.suo
 *.user
@@ -330,3 +335,4 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
