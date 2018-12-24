@@ -1,8 +1,0 @@
-RESTRICTION: == net472
-NUGET
-  remote: https://www.nuget.org/api/v2
-    CNTK.CPUOnly (2.6)
-      CNTK.Deps.MKL (2.6)
-      CNTK.Deps.OpenCV.Zip (2.6)
-    CNTK.Deps.MKL (2.6)
-    CNTK.Deps.OpenCV.Zip (2.6)
