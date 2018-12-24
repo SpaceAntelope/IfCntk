@@ -1,9 +1,8 @@
 
+framework: netstandard2.0
 generate_load_scripts: true
 storage: none
 source https://nuget.org/api/v2
 nuget CNTK.CPUOnly
 nuget FsLab
-nuget MathNet.Numerics
-nuget MathNet.Numerics.FSharp
 nuget FSharp.Charting
