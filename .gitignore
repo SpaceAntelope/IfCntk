@@ -5,10 +5,14 @@
 
 .ipynb_checkpoints/
 .paket/load/
-
+notebooks/cntk-tutorials/.paket/load
+notebooks/cntk-tutorials/.ipynb_checkpoints/
+notebooks/other/*/.paket/load
+notebooks/other/*/.ipynb_checkpoints/
 # Generated from 'Preparing workspace.ipynb'
 paket.dependencies
 paket.lock
+*.html
 
 # User-specific files
 *.suo
