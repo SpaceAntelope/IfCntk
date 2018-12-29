@@ -3,6 +3,39 @@ open System.Text.RegularExpressions
 open System.IO
 open System
 
+type DllKind =
+    | Debug
+    | Release
+
+type Processor =
+    | CPU
+    | GPU
+
+let CpuOnlyPackages =
+    [ "CNTK.CPUOnly"; "CNTK.Deps.MKL"; "CNTK.Deps.OpenCV.Zip" ]
+    |> List.map (fun str -> str.ToLower())
+    |> Set.ofList
+
+let GpuPackages =
+    [ "CNTK.GPU"; "CNTK.Deps.Cuda"; "CNTK.Deps.cuDNN"; "CNTK.Deps.MKL";
+      "CNTK.Deps.OpenCV.Zip " ]
+    |> List.map (fun str -> str.ToLower())
+    |> Set.ofList
+
+let ProcFilter proc (path : string) =
+    let loCase = path.ToLower().Split([| '\\'; '/' |]) |> Set.ofArray
+    match proc with
+    | CPU ->
+        CpuOnlyPackages
+        |> Set.intersect loCase
+        |> Set.count
+        |> (<) 0
+    | GPU ->
+        GpuPackages
+        |> Set.intersect loCase
+        |> Set.count
+        |> (<) 0
+
 let IsWindows =
     System.Runtime.InteropServices.RuntimeInformation.OSDescription.Contains
         ("Windows")
@@ -24,6 +57,12 @@ let CntkVersion =
     | dirs -> dirs |> Array.head
     |> fun str -> str.Replace("\\", "").Replace("/", "")
 
+let CntkProc =
+    if Regex.IsMatch
+           (CntkCoreManagedPath, @"[\\/]cntk\.cpuonly[\\/]",
+            RegexOptions.IgnoreCase) then CPU
+    else GPU
+
 let PackagesPath =
     CntkCoreManagedPath
     |> Path.GetDirectoryName
@@ -37,10 +76,6 @@ let PackagesPath =
            sprintf "%s%s%s" state (Path.DirectorySeparatorChar.ToString())
                current)
 
-type DllKind =
-    | Debug
-    | Release
-
 let ManagedSupportPath kind =
     match kind with
     | Debug -> sprintf "../../support/x64/%s" "Debug"
@@ -48,7 +83,7 @@ let ManagedSupportPath kind =
     |> fun supportPath ->
         Path.Combine(CntkCoreManagedPath, supportPath) |> Path.GetFullPath
 
-let DepPaths kind =
+let DepPaths proc kind =
     let support =
         Directory.GetDirectories(PackagesPath, "cntk.deps.*")
         |> Array.collect (fun dir ->
@@ -75,10 +110,10 @@ let binPaths kind =
         match kind with
         | Debug ->
             yield Debug |> ManagedSupportPath
-            yield! Debug |> DepPaths
+            yield! Debug |> DepPaths CntkProc
         | Release ->
             yield Release |> ManagedSupportPath
-            yield! Release |> DepPaths
+            yield! Release |> DepPaths CntkProc        
     }
 
 let createOrCleanLocalBinFolder folderName =
@@ -102,4 +137,4 @@ let copyDependenciesToLocalFolder binFolder dependencyKind =
            File.Copy(path, Path.Combine(binFolder, Path.GetFileName(path)))
            FileInfo(path).Length)
     |> Array.sum
-    |> fun sum -> printfn "Copied %.02fMB" (float (sum/1024L/1024L))
+    |> fun sum -> printfn "Copied %.02fMB" (float (sum / 1024L / 1024L))

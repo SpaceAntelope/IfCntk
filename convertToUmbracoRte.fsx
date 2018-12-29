@@ -31,8 +31,6 @@ doc.DocumentNode.QuerySelectorAll(".cell")
                       "<pre class=\"line-numbers language-fsharp\"><code>%s</code></pre>"
                |> HtmlNode.CreateNode
 
-           let nl = Environment.NewLine
-
            let output =
                match node.QuerySelector(".output_area") with
                | null -> null
