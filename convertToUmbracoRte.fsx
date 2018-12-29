@@ -1,16 +1,14 @@
-open HtmlAgilityPack
-
-#load @".paket\load\main.group.fsx"
+#load @"D:\repos\AI-DS\JupyConv\.paket\load\main.group.fsx"
 
 open Fizzler.Systems.HtmlAgilityPack
 open HtmlAgilityPack
 open System
+open System.Text.RegularExpressions
 open System.IO
 
 let doc = HtmlDocument()
 
-doc.Load
-    (@"C:\Users\cernu\Documents\Code\IfCntk\notebooks\cntk-tutorials\Preparing workspace.html")
+doc.Load(@"notebooks\cntk-tutorials\Preparing workspace.html")
 
 let (|TextCell|CodeCell|Other|) (node : HtmlNode) =
     match node.Attributes.["class"].Value with
@@ -20,24 +18,32 @@ let (|TextCell|CodeCell|Other|) (node : HtmlNode) =
 
 doc.DocumentNode.QuerySelectorAll(".cell")
 |> Seq.collect (function
-       | TextCell node -> 
-            let text = node.QuerySelector(".text_cell_render")
-            text.Attributes.Remove("class")
-            [text]           
+       | TextCell node ->
+           let text = node.QuerySelector(".text_cell_render")
+           text.Attributes.Remove("class")
+           let anchor = text.QuerySelector("a.anchor-link")
+           if (anchor <> null) then anchor.Remove()
+           [ text ]
        | CodeCell node ->
            let code =
                node.QuerySelector(".input_area pre").InnerText
                |> sprintf
-                      "<pre class=\"line-numbers\"><code class=\"line-numbers language-fsharp\">%s</code></pre>"
+                      "<pre class=\"line-numbers language-fsharp\"><code>%s</code></pre>"
                |> HtmlNode.CreateNode
+
+           let nl = Environment.NewLine
 
            let output =
                match node.QuerySelector(".output_area") with
                | null -> null
                | node ->
-                   if node.FirstChild.Name = "#text"
-                   then node
+                   if node.FirstChild.Name = "#text" then node
                    else node.FirstChild
+                   |> fun outputNode ->
+                       outputNode.OuterHtml.Replace("\r\r","\r")
+                       |> sprintf
+                              "<div><span style=\"font-family: 'Courier New', Courier, monospace\">Output:</span>%s</div>"
+                       |> HtmlNode.CreateNode
 
            [ code; output ]
        | _ -> [])
@@ -45,14 +51,13 @@ doc.DocumentNode.QuerySelectorAll(".cell")
 |> Seq.map (fun node -> node.OuterHtml)
 |> fun lines -> File.WriteAllLines("output.html", lines)
 
-
-let doc' = HtmlDocument()
-doc'.Load("output.html")
-
-doc'.DocumentNode.QuerySelectorAll("code span")
-|> Seq.filter (fun node -> node.Attributes.Contains("class"))
-|> Seq.map (fun node -> node.Attributes.["class"].Value)
-|> Seq.filter(isNull>>not)
-|> Seq.collect (fun str -> str.Split(' '))
-//|> Seq.distinct
-|> Seq.countBy id
+let countClasses() =
+    let doc' = HtmlDocument()
+    doc'.Load("output.html")
+    doc'.DocumentNode.QuerySelectorAll("code span")
+    |> Seq.filter (fun node -> node.Attributes.Contains("class"))
+    |> Seq.map (fun node -> node.Attributes.["class"].Value)
+    |> Seq.filter (isNull >> not)
+    |> Seq.collect (fun str -> str.Split(' '))
+    //|> Seq.distinct
+    |> Seq.countBy id
