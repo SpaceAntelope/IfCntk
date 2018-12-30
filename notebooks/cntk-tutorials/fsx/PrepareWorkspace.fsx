@@ -86,6 +86,7 @@ let ManagedSupportPath kind =
 let DepPaths proc kind =
     let support =
         Directory.GetDirectories(PackagesPath, "cntk.deps.*")
+        |> Array.filter (ProcFilter proc)
         |> Array.collect (fun dir ->
                [| dir; CntkVersion; "support"; "x64" |]
                |> Path.Combine
@@ -116,7 +117,7 @@ let binPaths kind =
             yield! Release |> DepPaths CntkProc        
     }
 
-let createOrCleanLocalBinFolder folderName =
+let CreateOrCleanLocalBinFolder folderName =
     if folderName
        |> Directory.Exists
        |> not
@@ -127,7 +128,7 @@ let createOrCleanLocalBinFolder folderName =
                printfn "Removing file '%s'..." file
                FileInfo(file).Delete())
 
-let copyDependenciesToLocalFolder binFolder dependencyKind =
+let CopyDependenciesToLocalFolder binFolder dependencyKind =
     binPaths dependencyKind
     |> Array.ofSeq
     |> Array.collect (fun path -> Directory.GetFiles(path, "*.dll"))
