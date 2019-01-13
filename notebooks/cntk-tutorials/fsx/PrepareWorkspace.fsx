@@ -3,6 +3,12 @@ open System.Text.RegularExpressions
 open System.IO
 open System
 
+(* If run outside notebook, requires 
+   CNTK to have been referenced 
+   
+   i.e. #load "../.paket/load/CNTK.CPUOnly.fsx"
+*)
+
 type DllKind =
     | Debug
     | Release
@@ -139,3 +145,6 @@ let CopyDependenciesToLocalFolder binFolder dependencyKind =
            FileInfo(path).Length)
     |> Array.sum
     |> fun sum -> printfn "Copied %.02fMB" (float (sum / 1024L / 1024L))
+
+CreateOrCleanLocalBinFolder "bin"
+CopyDependenciesToLocalFolder "bin" Release
