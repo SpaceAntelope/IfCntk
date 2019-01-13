@@ -1,4 +1,4 @@
-#load @"D:\repos\AI-DS\JupyConv\.paket\load\main.group.fsx"
+#load @"main.group.fsx"
 
 open Fizzler.Systems.HtmlAgilityPack
 open HtmlAgilityPack
