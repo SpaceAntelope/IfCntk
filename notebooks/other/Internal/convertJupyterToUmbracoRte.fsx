@@ -6,7 +6,7 @@ open System
 open System.Text.RegularExpressions
 open System.IO
 
-let trunc ln (str:string) =
+let trunc ln (str : string) =
     let real_ln = str.Length
     str.Substring(0, Math.Min(ln, real_ln))
 
@@ -29,6 +29,22 @@ let convert (source : string) =
                    while anchor
                          |> Seq.length > 0 do
                        (anchor |> Seq.head).Remove()
+               
+               let alert = node.QuerySelector(".alert")
+               if alert <> null && alert.QuerySelector(".fas") = null then
+                   match alert.Attributes.["class"].Value with
+                   | cls when cls.Contains("-warning") -> """<span class="fas fa-exclamation-triangle fa-2x" style="margin: 10px; margin-left: 0; float: left;">""" 
+                   | cls when cls.Contains("-info") -> """<span class="fas fa-info-circle fa-2x" style="margin: 10px; margin-left: 0; float: left;">""" 
+                   |> HtmlNode.CreateNode |> alert.PrependChild
+                   |> ignore
+               
+               let label = node.QuerySelector(".label")
+               if label <> null then 
+                let cls = label.Attributes.["class"].Value
+                label.Attributes.["class"].Remove()
+                label.Attributes.Add("class", cls.Replace("label", "badge"))
+                label.Attributes.Add("style", "margin: 5px;")
+                
                [ text ]
            | CodeCell node ->
                let code =
@@ -46,9 +62,13 @@ let convert (source : string) =
                            HtmlNode.CreateNode
                                "<div><span style=\"font-family: 'Courier New', Courier, monospace\">Output:</span><div style='border: solid gold 3px; border-radius: 5px; padding: 5px;'><img src='' alt='There should probably be a chart image here'</div></div>"
                        else if node.FirstChild.Name = "#text" then
-                            let result =  Regex.Replace(node.OuterHtml, @"((\r\n|\n|\r)$)|(^(\r\n|\n|\r))|^\s*$", "", RegexOptions.Multiline)
-                            result |> trunc 200 |> printfn "[[[[ %s ]]]]"
-                            result |> HtmlNode.CreateNode
+                           let result =
+                               Regex.Replace
+                                   (node.OuterHtml,
+                                    @"((\r\n|\n|\r)$)|(^(\r\n|\n|\r))|^\s*$", "",
+                                    RegexOptions.Multiline)
+                           //result |> trunc 200 |> printfn "[[[[ %s ]]]]"
+                           result |> HtmlNode.CreateNode
                        else
                            node.FirstChild
                            |> fun outputNode ->
@@ -76,3 +96,7 @@ let countClasses() =
     |> Seq.countBy id
 
 convert @"notebooks\cntk-tutorials\101-LogReg-CPUOnly.html"
+
+// "<div></div>"
+// |> HtmlNode.CreateNode
+// |> fun node -> node.QuerySelector("img")
