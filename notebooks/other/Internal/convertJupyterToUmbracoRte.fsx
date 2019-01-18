@@ -114,7 +114,14 @@ let countClasses() =
     //|> Seq.distinct
     |> Seq.countBy id
 
-convert @"notebooks\cntk-tutorials\101-LogReg-CPUOnly.html"
+// convert @"notebooks\cntk-tutorials\101-LogReg-CPUOnly.html"
 // "<div></div>"
 // |> HtmlNode.CreateNode
 // |> fun node -> node.QuerySelector("img")
+
+fsi.CommandLineArgs 
+|> Array.filter (fun str -> str.EndsWith(".html")) 
+|> Array.tryFind (File.Exists)
+|> function 
+| Some path -> convert path
+| None -> failwith "Invalid Argument"
