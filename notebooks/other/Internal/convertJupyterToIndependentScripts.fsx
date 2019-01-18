@@ -21,8 +21,7 @@ open System
 open System.Text.RegularExpressions
 
 [<Literal>]
-let path =
-    @"E:\repos\AI-DS\IfCntk\notebooks\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
+let path = __SOURCE_DIRECTORY__ + @"\..\..\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
 
 type JupyterType = JsonProvider<path>
 
@@ -70,13 +69,13 @@ let writeFiles notebookPath =
     let nbName = System.IO.Path.GetFileNameWithoutExtension(notebookPath)
 
     let cntkPath =
-        @"..\..\notebooks\cntk-tutorials\fsx\CntkHelpers.fsx"
+        sprintf @"%s\..\..\cntk-tutorials\fsx\CntkHelpers.fsx" __SOURCE_DIRECTORY__
     let nbPath =
-        @"..\..\notebooks\cntk-tutorials\fsx\NBHelpers.fsx"
+        sprintf @"%s\..\..\cntk-tutorials\fsx\NBHelpers.fsx" __SOURCE_DIRECTORY__
     let otherPath =
-        sprintf @"..\..\notebooks\cntk-tutorials\fsx\%s.fsx" nbName
+        sprintf @"%s\..\..\cntk-tutorials\fsx\%s.fsx"  __SOURCE_DIRECTORY__  nbName
     let miscPath =
-        @"..\..\notebooks\cntk-tutorials\fsx\MiscellaneousHelpers.fsx"
+        sprintf @"%s\..\..\cntk-tutorials\fsx\MiscellaneousHelpers.fsx" __SOURCE_DIRECTORY__
 
     [cntkPath; nbPath; otherPath; miscPath]
     |> List.iter (fun path -> File.WriteAllText(path, """
@@ -168,3 +167,7 @@ Environment.GetEnvironmentVariable("PATH")
             lastLine <- line
             line)
     |> fun lines -> File.WriteAllLines(otherPath, lines)
+
+writeFiles @"E:\repos\AI-DS\IfCntk\notebooks\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
+
+System.IO.Path.GetFullPath(@".\..\..\notebooks\cntk-tutorials\fsx\CntkHelpers.fsx")

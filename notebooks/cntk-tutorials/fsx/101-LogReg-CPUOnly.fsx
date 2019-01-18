@@ -1,3 +1,4 @@
+
 (*
  * Author:    Lazarus-Ares Terzopoulos
  * Created:   December 2018 - ongoing
@@ -6,7 +7,7 @@
  *)
 
 
-#r @"~~Your Xplot Package Path~~\XPlot.Plotly.dll"
+#r @"C:\Users\Ares\.nuget\packages\xplot.plotly\1.5.0\lib\net45\XPlot.Plotly.dll"
 #load "MiscellaneousHelpers.fsx"
 open MiscellaneousHelpers
 
@@ -260,9 +261,11 @@ let outputDataMap = [(out.Output, null)] |> dataMap
 let inputDataMap = [(featureVariable, matrixToBatch x_test)] |> dict
 
 
+// Generate network output
 out.Evaluate(inputDataMap, outputDataMap, device)
 
 
+// Extract data from the network
 let result = outputDataMap.[out.Output].GetDenseData<float32>(out.Output)
 
 
@@ -280,7 +283,7 @@ predictedBinary |> Array.take 10 |> printfn "Predicted: %A ..."
 
 (* The index we created along with the linear layer function
    finaly comes useful!
-   Seq.head is because the result of Value.GetDense is always 2D
+   Seq.head is needed because the result of Value.GetDense is always 2D
 *)
 let weightMatrix =
     index.["Weights"]
@@ -314,25 +317,6 @@ separator_x, separator_y
 |> Chart.WithHeight 400
 |> Chart.WithWidth 600
 |> Chart.Show
-
-
-let batchFromSeq (dim:int) (source : float seq) =
-    CNTK.Value.CreateBatch(shape [dim], source |> Seq.map (float32), device)
-
-
-let evaluateWithSoftmax (model : Function) (source : float seq seq) =
-    let inputDim = source |> Seq.head |> Seq.length
-    let inputData = source |> Seq.collect id |> batchFromSeq inputDim
-    let out = CNTKLib.Softmax(new Variable(model))
-    let inputDataMap = [out.Arguments.[0], inputData] |> dict
-    let outputDataMap = [(out.Output, null)] |> dataMap
-    out.Evaluate(inputDataMap, outputDataMap, device)
-
-
-    outputDataMap
-        .[out.Output]
-        .GetDenseData<float32>(out.Output)
-    |> Seq.map Seq.head
 
 
 let predictedLabelGrid (range : float[]) =

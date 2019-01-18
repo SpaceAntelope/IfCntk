@@ -7,7 +7,6 @@
  *)
 
 
-
 (* Requires MathNet to be referenced and device : CNTK.DeviceDescriptor to be set *)
 open System.Collections.Generic
 open MathNet.Numerics.LinearAlgebra
@@ -58,10 +57,33 @@ let dataMap (source: seq<Variable*Value>) =
 
 /// A helper function to extract data from parameter nodes.
 /// You can use this to see a layer's weights.
-/// <remarks> CNTK Helper function </remarks>/
+/// <remarks> CNTK Helper function </remarks>
 let paramData<'T> (p: CNTK.Parameter) =
     let arrayView = p.Value()
     let value = new Value(arrayView)
     value.GetDenseData<'T>(p)
+
+
+/// A helper function to convert a sequence
+/// of numbers for use as neural network input
+/// <remarks> CNTK Helper function </remarks>
+let batchFromSeq (dim:int) (source : float seq) =
+    CNTK.Value.CreateBatch(shape [dim], source |> Seq.map (float32), device)
+
+
+/// A helper function to evaluate a dataset in
+/// a softmax model and extract results in one go
+/// <remarks> CNTK Helper function </remarks>
+let evaluateWithSoftmax (model : Function) (source : float seq seq) =
+    let inputDim = source |> Seq.head |> Seq.length
+    let inputData = source |> Seq.collect id |> batchFromSeq inputDim
+    let out = CNTKLib.Softmax(new Variable(model))
+    let inputDataMap = [out.Arguments.[0], inputData] |> dict
+    let outputDataMap = [(out.Output, null)] |> dataMap
+    out.Evaluate(inputDataMap, outputDataMap, device)
+    outputDataMap
+        .[out.Output]
+        .GetDenseData<float32>(out.Output)
+    |> Seq.map Seq.head
 
 
