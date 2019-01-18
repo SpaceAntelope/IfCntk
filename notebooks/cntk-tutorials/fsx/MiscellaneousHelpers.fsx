@@ -1,3 +1,11 @@
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018 - ongoing
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *)
+
+
 /// <remarks> Helper function </remarks>
 let inline normalizeByMax(max:'T) (source : 'T seq) =
     source |> Seq.map ((fun n -> float n/ float max)>>float32)

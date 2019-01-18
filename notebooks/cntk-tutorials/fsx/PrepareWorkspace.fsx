@@ -1,3 +1,10 @@
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *)
+
 open System.Reflection
 open System.Text.RegularExpressions
 open System.IO

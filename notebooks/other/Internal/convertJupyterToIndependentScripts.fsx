@@ -1,3 +1,18 @@
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *
+ * Summary:
+ *  Welcome wanderer! This is the script I used to exctract the code 
+ *  from my F# notebooks into .fsx scripts. It's ugly, but it got
+ *  the job done.
+ *  
+ *  Not really meant for public consumption, but since you're here 
+ *  knock yourself out!
+ *)
+
 #load ".paket/load/main.group.fsx"
 
 open FSharp.Data
@@ -7,7 +22,7 @@ open System.Text.RegularExpressions
 
 [<Literal>]
 let path =
-    @"..\..\notebooks\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
+    @"E:\repos\AI-DS\IfCntk\notebooks\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
 
 type JupyterType = JsonProvider<path>
 
@@ -51,22 +66,36 @@ module Seq =
         |> split'
         |> Seq.filter ((<>) Seq.empty)
 
-let writeFiles =
+let writeFiles notebookPath =
+    let nbName = System.IO.Path.GetFileNameWithoutExtension(notebookPath)
+
     let cntkPath =
         @"..\..\notebooks\cntk-tutorials\fsx\CntkHelpers.fsx"
     let nbPath =
         @"..\..\notebooks\cntk-tutorials\fsx\NBHelpers.fsx"
     let otherPath =
-        @"..\..\notebooks\cntk-tutorials\fsx\101-LogReg.fsx"
+        sprintf @"..\..\notebooks\cntk-tutorials\fsx\%s.fsx" nbName
     let miscPath =
         @"..\..\notebooks\cntk-tutorials\fsx\MiscellaneousHelpers.fsx"
-    File.WriteAllText(cntkPath,"""
+
+    [cntkPath; nbPath; otherPath; miscPath]
+    |> List.iter (fun path -> File.WriteAllText(path, """
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018 - ongoing
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *)
+
+""" ))
+
+    File.AppendAllText(cntkPath,"""
 (* Requires MathNet to be referenced and device : CNTK.DeviceDescriptor to be set *)
 open System.Collections.Generic
 open MathNet.Numerics.LinearAlgebra
 
 """ )
-    File.WriteAllText(otherPath, """
+    File.AppendAllText(otherPath, """
 #r @"C:\Users\Ares\.nuget\packages\xplot.plotly\1.5.0\lib\net45\XPlot.Plotly.dll"
 #load "MiscellaneousHelpers.fsx"
 open MiscellaneousHelpers
@@ -87,8 +116,7 @@ Environment.GetEnvironmentVariable("PATH")
 (***)
 
 """ )
-    [ nbPath; miscPath ] |> List.iter (File.Delete)
-    
+
     data.Cells
     |> Seq.filter (fun cell -> cell.CellType = "code")
     |> Seq.collect (fun cell -> cell.Source |> Seq.split "·")

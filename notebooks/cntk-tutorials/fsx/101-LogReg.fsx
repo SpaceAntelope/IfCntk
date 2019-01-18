@@ -1,3 +1,10 @@
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018 - ongoing
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *)
+
 
 #r @"~~Your Xplot Package Path~~\XPlot.Plotly.dll"
 #load "MiscellaneousHelpers.fsx"

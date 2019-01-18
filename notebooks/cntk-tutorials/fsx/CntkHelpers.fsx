@@ -1,4 +1,13 @@
 
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018 - ongoing
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *)
+
+
+
 (* Requires MathNet to be referenced and device : CNTK.DeviceDescriptor to be set *)
 open System.Collections.Generic
 open MathNet.Numerics.LinearAlgebra

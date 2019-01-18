@@ -1,3 +1,19 @@
+(*
+ * Author:    Lazarus-Ares Terzopoulos
+ * Created:   December 2018
+ * 
+ * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
+ *
+ * Summary:
+ *  Welcome wanderer! This is the script I used to convert F# notebooks 
+ *  to rich text editor friendly mode for my blog. It's ugly, but it got 
+ *  the job done. 
+ *  
+ *  Not really meant for public consumption, but since you're here 
+ *  knock yourself out!
+ *)
+
+
 #load ".paket/load/main.group.fsx"
 
 open Fizzler.Systems.HtmlAgilityPack
@@ -114,14 +130,25 @@ let countClasses() =
     //|> Seq.distinct
     |> Seq.countBy id
 
-// convert @"notebooks\cntk-tutorials\101-LogReg-CPUOnly.html"
-// "<div></div>"
-// |> HtmlNode.CreateNode
-// |> fun node -> node.QuerySelector("img")
+let getLinksFromArticle (path:string) = 
+    printfn "Links in article:"
+    let doc = HtmlDocument()
+    doc.Load(path)
+    doc.DocumentNode.QuerySelectorAll("a")
+    |> Seq.filter (fun node -> 
+            let cls = node.Attributes.["class"]
+            if cls |> isNull |> not then
+                node.Attributes.["class"].Value.Contains("anchor-link") |> not 
+            else true)
+    |> Seq.sortBy (fun node -> node.OuterHtml)      
+    |> Seq.iter (fun node -> printfn "%s\n\t%s\n" node.InnerText (node.Attributes.["href"].Value))
 
 fsi.CommandLineArgs 
 |> Array.filter (fun str -> str.EndsWith(".html")) 
 |> Array.tryFind (File.Exists)
 |> function 
-| Some path -> convert path
+| Some path -> 
+        convert path
+        getLinksFromArticle path
 | None -> failwith "Invalid Argument"
+
