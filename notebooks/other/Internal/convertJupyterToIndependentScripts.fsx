@@ -168,6 +168,3 @@ Environment.GetEnvironmentVariable("PATH")
             line)
     |> fun lines -> File.WriteAllLines(otherPath, lines)
 
-writeFiles @"E:\repos\AI-DS\IfCntk\notebooks\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
-
-System.IO.Path.GetFullPath(@".\..\..\notebooks\cntk-tutorials\fsx\CntkHelpers.fsx")

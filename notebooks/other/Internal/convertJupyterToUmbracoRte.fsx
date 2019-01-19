@@ -151,4 +151,3 @@ fsi.CommandLineArgs
         convert path
         getLinksFromArticle path
 | None -> failwith "Invalid Argument"
-
