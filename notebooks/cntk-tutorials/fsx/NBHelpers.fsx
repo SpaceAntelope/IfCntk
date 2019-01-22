@@ -6,6 +6,13 @@
  * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
  *)
 
+
+
+// Without this reference the script fails 
+// to #load in notebook, claiming 
+// Util is not defined
+#r "IFSharp.Kernel"
+
 /// Simple wrapper to show inline images
 /// from url with customizable width
 /// <remarks> Notebook Helper Function </remarks>

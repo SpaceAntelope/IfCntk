@@ -6,14 +6,12 @@
  * (c) Licence information at https://github.com/SpaceAntelope/IfCntk
  *)
 
-
-#r @"C:\Users\Ares\.nuget\packages\xplot.plotly\1.5.0\lib\net45\XPlot.Plotly.dll"
-#load "MiscellaneousHelpers.fsx"
-open MiscellaneousHelpers
-
 #r "netstandard"
 #r @"..\bin\Cntk.Core.Managed-2.6.dll"
 #load @"..\.paket\load\main.group.fsx"
+#load "MiscellaneousHelpers.fsx"
+open MiscellaneousHelpers
+
 
 open CNTK
 let device = DeviceDescriptor.CPUDevice
@@ -47,43 +45,21 @@ let labelCount = 2
 let sampleCount = 32
 let device = DeviceDescriptor.CPUDevice
 
-
-open MathNet.Numerics.Distributions;
-
-
-let seed = 42
-let rand = System.Random(seed)
-let nrand = Normal(0.,1.,rand)
-let randInt max = seq { while true do yield rand.Next() % max }
-let randn = Normal.Samples(rand, 0.0, 1.0)
-let oneHotEncoding classCount classType =
-    Array.init classCount (fun i -> if i = classType then 1.0f else 0.0f)
-
-
-open MathNet.Numerics.LinearAlgebra
-
-
-let generateRandomDataSample sampleCount featureCount labelCount =
-    let Y = Array.init sampleCount
-                (fun _ -> float32 (rand.Next() % labelCount) )
-    let X = DenseMatrix.init sampleCount featureCount
-                (fun row col -> float32 (nrand.Sample() + 3.) * (Y.[row]+1.f) )
-    let oneHotLabel =
-        Y
-        |> Array.map(int>>(oneHotEncoding labelCount))
-        |> DenseMatrix.ofRowArrays
-
-
-    X, oneHotLabel
-let x,y = generateRandomDataSample 32 2 2
-
+(*
+ * No XPlot for netstandard it seems, 
+ * let's use a manual reference to a .net version
+ * for now
+*)
 
 // Setup display support
 // #load "XPlot.Plotly.fsx"
+#r @"C:\Users\%username%\.nuget\packages\xplot.plotly\1.5.0\lib\net45\XPlot.Plotly.dll"
+MiscellaneousHelpers.seed <- 42
 
+let x,y = generateRandomDataSample sampleCount featureCount labelCount
 
 open XPlot.Plotly
-
+open MathNet.Numerics.LinearAlgebra // necessary to slice matrixes with the bracket operator
 
 let colors =
     [for label in y.Column(0) do
