@@ -153,5 +153,5 @@ let CopyDependenciesToLocalFolder binFolder dependencyKind =
     |> Array.sum
     |> fun sum -> printfn "Copied %.02fMB" (float (sum / 1024L / 1024L))
 
-CreateOrCleanLocalBinFolder "bin"
-CopyDependenciesToLocalFolder "bin" Release
+// CreateOrCleanLocalBinFolder "bin"
+// CopyDependenciesToLocalFolder "bin" Release
