@@ -126,20 +126,6 @@ let lrSchedule = new CNTK.TrainingParameterScheduleDouble(learningRate, uint32 C
 
 let learner = CNTKLib.SGDLearner(z.Parameters() |> ParVec, lrSchedule)
 let trainer = CNTK.Trainer.CreateTrainer(z, loss, evalError, ResizeArray<CNTK.Learner>([learner]))
-
-
-// Define a utility that prints the training progress
-let printTrainingProgress (trainer: CNTK.Trainer) minibatch frequency verbose =
-    if minibatch % frequency = 0
-    then
-        let mbla = trainer.PreviousMinibatchLossAverage()
-        let mbea = trainer.PreviousMinibatchEvaluationAverage()
-        if verbose then
-            printfn "Minibatch: %d, Loss: %.4f, Error: %.2f" minibatch mbla mbea
-        Some (minibatch, mbla, mbea)
-    else None
-
-
 let minibatchSize = 25
 let numSamplesToTrain = 20000
 let numMinibatchesToTrain = int (numSamplesToTrain/minibatchSize)

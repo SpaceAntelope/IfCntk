@@ -52,3 +52,15 @@ let generateRandomDataSample sampleCount featureCount labelCount =
 
     X, oneHotLabel
 
+// # Define a utility that prints the training progress
+/// A training progress logger
+/// <remarks> Helper function </remarks>
+let printTrainingProgress (trainer: CNTK.Trainer) minibatch frequency verbose =
+    if minibatch % frequency = 0
+    then
+        let mbla = trainer.PreviousMinibatchLossAverage()
+        let mbea = trainer.PreviousMinibatchEvaluationAverage()
+        if verbose then
+            printfn "Minibatch: %d, Loss: %.4f, Error: %.2f" minibatch mbla mbea
+        Some (minibatch, mbla, mbea)
+    else None
