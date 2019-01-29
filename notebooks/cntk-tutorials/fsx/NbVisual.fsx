@@ -8,7 +8,7 @@ open CntkHelpers
 
 /// Matrix data set converted to two dimensional scatter plot
 /// <remarks> Visual helper </remarks>
-let simpleScatterPlot (features:Matrix<float32>) (labels: Matrix<float32>) xTitle yTitle =
+let simpleScatterPlot xTitle yTitle (features:Matrix<float32>) (labels: Matrix<float32>) =
     let colors = 
         [for label in labels.[*,0] do 
             yield if label = 0.f then "Red" else "Blue"]
@@ -28,6 +28,9 @@ type TrainReport = {
     Loss: ResizeArray<float>
     Error: ResizeArray<float> }
 
+/// Visualization for type TrainReport --
+/// loss & error in time series form
+/// <remarks> Visual helper </remarks>
 let trainingResultPlot (plotdata : TrainReport) =
     let lossMax = plotdata.Loss |> Seq.max
     let dash = Line(dash="dash")
@@ -45,11 +48,14 @@ let trainingResultPlot (plotdata : TrainReport) =
     |> Chart.WithHeight 400
     
 
+/// Visualization for type TrainReport, smoothed 
+/// by a moving average with a window of 10
+/// loss & error in time series form
+/// <remarks> Visual helper </remarks>
 let trainingResultPlotSmoothed (plotdata : TrainReport) =    
     let avgLoss = movingAverage (plotdata.Loss) 10
     let avgError = movingAverage (plotdata.Error) 10
     let maxAvgLoss = avgLoss |> Seq.max
-
 
     [   Scatter(name="Average Loss (scaled)", line=Line(dash="dash"),
                 x = plotdata.BatchSize, y = (avgLoss |> normalizeByMax maxAvgLoss))
@@ -62,7 +68,10 @@ let trainingResultPlotSmoothed (plotdata : TrainReport) =
                  yaxis = Yaxis(title = "Cost")))
     |> Chart.WithHeight 400
 
-let modelOutputHeatmap (range: float[]) (model: CNTK.Function) xTitle yTitle =
+/// Heatmap visualization of CNTK model output 
+/// for a square range of inputs.
+/// <remarks> Visual helper </remarks>
+let modelSoftmaxOutputHeatmap xTitle yTitle (range: float[]) (model: CNTK.Function)  =
     let predictedLabelGrid (range : float[]) =
         seq [for x in range do for y in range do yield seq [x;y] ]
         |> evaluateWithSoftmax model
@@ -93,3 +102,5 @@ let modelOutputHeatmap (range: float[]) (model: CNTK.Function) xTitle yTitle =
                     yaxis=Yaxis(title=yTitle)))
     |> Chart.WithWidth 700
     |> Chart.WithHeight 500
+
+    
