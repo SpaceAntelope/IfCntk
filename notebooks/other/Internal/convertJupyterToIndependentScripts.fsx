@@ -21,7 +21,7 @@ open System
 open System.Text.RegularExpressions
 
 [<Literal>]
-let path = __SOURCE_DIRECTORY__ + @"\..\..\cntk-tutorials\101-LogReg-CPUOnly.ipynb"
+let path = __SOURCE_DIRECTORY__ + @"\..\..\cntk-tutorials\102-FeedForwardNetwork.ipynb"
 
 type JupyterType = JsonProvider<path>
 
@@ -31,23 +31,29 @@ let data =
     |> fun text -> text.Replace("\"\\n\"", "\"·\"")
     |> JupyterType.Parse
 
-let (|CntkHelper|NbHelper|GeneralHelper|Other|) (source : string seq) =
+let (|CntkHelper|NbHelper|NbVisual|GeneralHelper|Other|) (source : string seq) =
     source
-    |> Seq.exists (fun str -> str.ToLower().Contains("cntk helper function"))
+    |> Seq.exists (fun str -> str.ToLower().Contains("cntk helper"))
     |> function
     | true -> CntkHelper source
     | false ->
         source
         |> Seq.exists
-               (fun str -> str.ToLower().Contains("notebook helper function"))
+               (fun str -> str.ToLower().Contains("notebook helper"))
         |> function
         | true -> NbHelper source
         | false ->
             source
-            |> Seq.exists (fun str -> str.ToLower().Contains("helper function"))
+            |> Seq.exists
+                   (fun str -> str.ToLower().Contains("visual helper"))
             |> function
-            | true -> GeneralHelper source
-            | false -> Other source
+            | true -> NbVisual source
+            | false ->        
+                source
+                |> Seq.exists (fun str -> str.ToLower().Contains("helper"))
+                |> function
+                | true -> GeneralHelper source
+                | false -> Other source
 
 module Seq =
     let split separator sequence =
@@ -69,15 +75,17 @@ let writeFiles notebookPath =
     let nbName = System.IO.Path.GetFileNameWithoutExtension(notebookPath)
 
     let cntkPath =
-        sprintf @"%s\..\..\cntk-tutorials\fsx\CntkHelpers.fsx" __SOURCE_DIRECTORY__
+        sprintf @"%s\..\..\cntk-tutorials\fsx\CntkHelpers_new.fsx" __SOURCE_DIRECTORY__
     let nbPath =
-        sprintf @"%s\..\..\cntk-tutorials\fsx\NBHelpers.fsx" __SOURCE_DIRECTORY__
+        sprintf @"%s\..\..\cntk-tutorials\fsx\NbHelpers_new.fsx" __SOURCE_DIRECTORY__
     let otherPath =
-        sprintf @"%s\..\..\cntk-tutorials\fsx\%s.fsx"  __SOURCE_DIRECTORY__  nbName
+        sprintf @"%s\..\..\cntk-tutorials\fsx\%s.fsx_new"  __SOURCE_DIRECTORY__  nbName
     let miscPath =
-        sprintf @"%s\..\..\cntk-tutorials\fsx\MiscellaneousHelpers.fsx" __SOURCE_DIRECTORY__
+        sprintf @"%s\..\..\cntk-tutorials\fsx\MiscellaneousHelpers_new.fsx" __SOURCE_DIRECTORY__
+    let visualPath =
+        sprintf @"%s\..\..\cntk-tutorials\fsx\NbVisual_new.fsx" __SOURCE_DIRECTORY__
 
-    [cntkPath; nbPath; otherPath; miscPath]
+    [cntkPath; nbPath; otherPath; miscPath; visualPath]
     |> List.iter (fun path -> File.WriteAllText(path, """
 (*
  * Author:    Lazarus-Ares Terzopoulos
@@ -130,7 +138,8 @@ Environment.GetEnvironmentVariable("PATH")
            | CntkHelper source -> File.AppendAllLines(cntkPath, source)
            | NbHelper source -> File.AppendAllLines(nbPath, source)
            | GeneralHelper source -> File.AppendAllLines(miscPath, source)
-           | Other source -> File.AppendAllLines(otherPath, source))
+           | Other source -> File.AppendAllLines(otherPath, source)
+           | NbVisual source -> File.AppendAllLines(visualPath,source))
     let nbHelperFunctionNames =
         nbPath
         |> File.ReadAllLines
@@ -168,3 +177,4 @@ Environment.GetEnvironmentVariable("PATH")
             line)
     |> fun lines -> File.WriteAllLines(otherPath, lines)
 
+writeFiles path

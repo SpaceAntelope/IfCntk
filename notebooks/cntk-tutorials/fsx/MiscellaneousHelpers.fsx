@@ -64,3 +64,29 @@ let printTrainingProgress (trainer: CNTK.Trainer) minibatch frequency verbose =
             printfn "Minibatch: %d, Loss: %.4f, Error: %.2f" minibatch mbla mbea
         Some (minibatch, mbla, mbea)
     else None
+
+/// Get index of maximum value
+/// <remarks> Helper function </remarks>
+let argMax<'T when 'T : comparison and 'T : equality>(source: 'T seq) =
+    let max = source |> Seq.max
+    Seq.findIndex ((=)max) source
+
+
+/// Bootstrap progress bars for training data reporting
+/// <remarks> Helper function </remarks>
+let reportHtml info progress loss error =
+    let progressBar kind label value =
+        System.String.Format(
+            """<div class='progress' style='margin-top:5px; width: 500px'>
+                   <div class='progress-bar progress-bar-{0} progress-bar-striped'
+                         role='progressbar' aria-valuenow='{0:f2}'
+                         aria-valuemin='0' aria-valuemax='100' style='width: {1:f2}%'>
+                        <span>{1:f2}% ({2})</span>
+                   </div>
+                </div>""", kind, value, label)
+
+    [ progressBar "info" "Progress" progress
+      progressBar "warning" "Loss" (loss * 100.)
+      progressBar "danger" "Error" (error * 100.) ]
+    |> List.reduce (+)
+    |> sprintf """<div class='container'><h2>%s</h2>%s</div>""" info

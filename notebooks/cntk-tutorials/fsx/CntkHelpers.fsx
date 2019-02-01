@@ -87,3 +87,56 @@ let evaluateWithSoftmax (model : Function) (source : float seq seq) =
     |> Seq.map Seq.head
 
 
+/// Convert Function to Variable
+/// <remarks> CNTK helper </remarks>
+let inline Var (x : CNTK.Function) = new Variable(x)
+
+
+/// Convert Variable to Function
+/// <remarks> CNTK helper </remarks>
+let inline Fun (x : CNTK.Variable) = x.ToFunction()
+
+
+/// Create a new linear layer in the W·x+b pattern
+/// <remarks> CNTK helper </helper>
+let linearLayer (inputVar : Variable) outputDim =
+    let inputDim = inputVar.Shape.[0]
+    // Note that unlike the python example, the dimensionality of the output
+    // goes first in the parameter declaration, otherwise the connection
+    // cannot be propagated.
+    let weightParam = new Parameter(shape [outputDim; inputDim], dataType, initialization, device, "Weights")
+    let biasParam = new Parameter(shape [outputDim], dataType, 0.0, device, "Bias")
+    let dotProduct = CNTKLib.Times(weightParam, inputVar, "Weighted input")
+    CNTKLib.Plus(Var dotProduct, biasParam, "Layer")
+
+
+/// Create a new linear layer and fully connect it to
+/// an existing one through a specified differentiable function
+/// <remarks> CNTK helper </helper>
+let denseLayer (nonlinearity: Variable -> Function) inputVar outputDim  =
+    linearLayer inputVar outputDim
+    |> Var |> nonlinearity |> Var
+
+
+/// Fully connected linear layer composition function
+/// <remarks> CNTK helper </remarks>
+let fullyConnectedClassifierNet' inputVar (hiddenLayerDims: int seq) numOutputClasses nonlinearity =
+    (inputVar, hiddenLayerDims)
+    ||> Seq.fold (denseLayer nonlinearity)
+    |> fun model -> linearLayer model numOutputClasses
+
+
+/// Evaluation of a Matrix dataset for a trained model
+/// <remarks> CNTK helper </remarks>
+let testMinibatch (trainer: CNTK.Trainer) (features: Matrix<float32>) (labels: Matrix<float32>) =
+    let x,y = matrixToBatch features, matrixToBatch labels
+    // It should be interesting to see if this convention
+    // will hold for any other topography
+    let input = trainer.Model().Arguments |> Seq.head
+    let label = trainer.LossFunction().Arguments |> Seq.last
+    let testBatch =
+        [ (input, x);(label, y) ]
+        |> dict
+        |> AsUnorderedMapVariableValue
+    trainer.TestMinibatch(testBatch , device)
+
