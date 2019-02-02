@@ -120,7 +120,7 @@ let denseLayer (nonlinearity: Variable -> Function) inputVar outputDim  =
 
 /// Fully connected linear layer composition function
 /// <remarks> CNTK helper </remarks>
-let fullyConnectedClassifierNet' inputVar (hiddenLayerDims: int seq) numOutputClasses nonlinearity =
+let fullyConnectedClassifierNet inputVar (hiddenLayerDims: int seq) numOutputClasses nonlinearity =
     (inputVar, hiddenLayerDims)
     ||> Seq.fold (denseLayer nonlinearity)
     |> fun model -> linearLayer model numOutputClasses
