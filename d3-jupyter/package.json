@@ -1,0 +1,21 @@
+{
+  "name": "d3-jupyter",
+  "version": "0.0.1",
+  "description": "Environment to support d3-graphviz in F# for jupyter",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm dist/bundle.js",
+    "build-dev": "webpack -d --mode development",
+    "build-prod": "webpack -p --mode production"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^5.8.0",
+    "d3-graphviz": "^2.6.1",
+    "jquery": "^3.3.1",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
+  }
+}
