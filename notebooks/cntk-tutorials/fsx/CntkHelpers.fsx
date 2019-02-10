@@ -106,8 +106,8 @@ let linearLayer (inputVar : Variable) outputDim =
     // cannot be propagated.
     let weightParam = new Parameter(shape [outputDim; inputDim], dataType, initialization, device, "Weights")
     let biasParam = new Parameter(shape [outputDim], dataType, 0.0, device, "Bias")
-    let dotProduct = CNTKLib.Times(weightParam, inputVar, "Weighted input")
-    CNTKLib.Plus(Var dotProduct, biasParam, "Layer")
+    let dotProduct = CNTKLib.Times(weightParam, inputVar, "@")
+    CNTKLib.Plus(Var dotProduct, biasParam, "+")
 
 
 /// Create a new linear layer and fully connect it to

@@ -8,6 +8,7 @@
 notebooks/cntk-tutorials/.paket/load
 notebooks/cntk-tutorials/.ipynb_checkpoints/
 notebooks/other/*/.paket/load
+notebooks/cntk-tutorials/Graphviz/.paket/load
 notebooks/other/*/.ipynb_checkpoints/
 notebooks/other/Internal/.paket/*
 paket.dependencies
