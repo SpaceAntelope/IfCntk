@@ -18,6 +18,8 @@ $(document).on("INIT_D3", (e, path) => {
                 .delay(500)
                 .duration(1000);
         });
+
+
     //.logEvents(true);
 });
 
@@ -25,7 +27,19 @@ $(document).on("RENDER_GRAPH", (e, graph) => {
     console.log("Event:", e.type, e);
     console.log("Graph:", graph);
 
-    graphviz.renderDot(graph);
+    graphviz.renderDot(graph).on("end", () => {
+        d3
+            .selectAll(".node ellipse, .node polygon")
+            .style("fill", "white")
+            // .on("mouseover", (d, i, n) => {
+            //     console.log("data:", i, d.id, d.key);
+            //     d3.select(n[i]).style("filter", "url(#shadow)");
+            // })
+            .on("click", (data, index, nodes) => {
+                console.log("click:", index, data.id, data.key);
+                $(document).trigger("NODE_CLICKED", [data, index, nodes[index]]);
+            });
+    });
     // d3.select(path)
     //     .graphviz()
     //     .fade(false)
