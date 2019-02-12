@@ -5,11 +5,30 @@ import * as d3 from "d3"
 import "d3-graphviz"
 
 var graphviz;
+var graphInfo;
+var $info;
+var $graph;
 
-$(document).on("INIT_D3", (e, path) => {
+
+function updateInfo(uid) {
+    let tab = $("<dl class='dl-horizontal'></div>")
+    let nodeInfo = graphInfo[uid];
+    for (let item of nodeInfo) {
+      $("<dt>" + item["Property"] + "</dt>").appendTo(tab);
+      $("<dd>" + item["Value"] + "</dd>").appendTo(tab);
+    }
+
+    $($info).empty();
+    $($info).append(tab);
+  }
+
+$(document).on("INIT_D3", (e, infoPath, graphPath) => {
     console.log("Event:", e.type, e);
-    console.log("Path:", path);
-    graphviz = d3.select(path)
+    
+    $info = infoPath;
+    $graph = graphPath;
+
+    graphviz = d3.select($graph)
         .attr("height", "100%")
         .attr("width", "100%").graphviz()
         .transition(function () {
@@ -18,23 +37,24 @@ $(document).on("INIT_D3", (e, path) => {
                 .delay(500)
                 .duration(1000);
         });
+});
 
-
-    //.logEvents(true);
+$(document).on("INIT_GRAPH_INFO", (e, infoObject)=>{
+    console.log("Event:", e.type, e);
+    graphInfo = infoObject;
 });
 
 $(document).on("RENDER_GRAPH", (e, graph) => {
     console.log("Event:", e.type, e);
-    console.log("Graph:", graph);
 
     graphviz.renderDot(graph).on("end", () => {
         d3
             .selectAll(".node ellipse, .node polygon")
             .style("fill", "white")
-            // .on("mouseover", (d, i, n) => {
-            //     console.log("data:", i, d.id, d.key);
-            //     d3.select(n[i]).style("filter", "url(#shadow)");
-            // })
+            .on("mouseover", (d, i, n) => {
+                let uid = d.id.split(".")[2];
+                updateInfo(uid);
+            })
             .on("click", (data, index, nodes) => {
                 console.log("click:", index, data.id, data.key);
                 $(document).trigger("NODE_CLICKED", [data, index, nodes[index]]);
