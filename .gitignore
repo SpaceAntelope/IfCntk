@@ -341,3 +341,4 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
+d3-jupyter/dist/bundle.js

@@ -14,17 +14,17 @@ function updateInfo(uid) {
     let tab = $("<dl class='dl-horizontal'></div>")
     let nodeInfo = graphInfo[uid];
     for (let item of nodeInfo) {
-      $("<dt>" + item["Property"] + "</dt>").appendTo(tab);
-      $("<dd>" + item["Value"] + "</dd>").appendTo(tab);
+        $("<dt>" + item["Property"] + "</dt>").appendTo(tab);
+        $("<dd>" + item["Value"] + "</dd>").appendTo(tab);
     }
 
     $($info).empty();
     $($info).append(tab);
-  }
+}
 
 $(document).on("INIT_D3", (e, infoPath, graphPath) => {
     console.log("Event:", e.type, e);
-    
+
     $info = infoPath;
     $graph = graphPath;
 
@@ -37,33 +37,34 @@ $(document).on("INIT_D3", (e, infoPath, graphPath) => {
                 .delay(500)
                 .duration(1000);
         });
+
+    console.log("Graphviz:", graphviz);
 });
 
-$(document).on("INIT_GRAPH_INFO", (e, infoObject)=>{
+$(document).on("INIT_GRAPH_INFO", (e, infoObject) => {
     console.log("Event:", e.type, e);
     graphInfo = infoObject;
 });
 
-$(document).on("RENDER_GRAPH", (e, graph) => {
+$(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo) => {
     console.log("Event:", e.type, e);
-
-    graphviz.renderDot(graph).on("end", () => {
-        d3
-            .selectAll(".node ellipse, .node polygon")
-            .style("fill", "white")
-            .on("mouseover", (d, i, n) => {
+    console.log(dotNotation);
+    console.log(nodeInfo);
+    
+    graphviz.renderDot(dotNotation).on("end", () => {
+        d3.selectAll(".node ellipse, .node polygon")
+          .style("fill", "white")
+          .on("mouseover", (d, i, n) => {
                 let uid = d.id.split(".")[2];
                 updateInfo(uid);
-            })
-            .on("click", (data, index, nodes) => {
+          })
+          .on("click", (data, index, nodes) => {
                 console.log("click:", index, data.id, data.key);
                 $(document).trigger("NODE_CLICKED", [data, index, nodes[index]]);
-            });
+          });
     });
-    // d3.select(path)
-    //     .graphviz()
-    //     .fade(false)
-    //     .renderDot(graph);
+
+    graphInfo = JSON.parse(nodeInfo);    
 })
 
 $(document).on("RENDER_SERIES", (e, graphs) => {
