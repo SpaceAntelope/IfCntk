@@ -14,7 +14,7 @@ function updateInfo(uid) {
     let tab = $("<dl class='dl-horizontal'></div>")
     let nodeInfo = graphInfo[uid];
     for (let item of nodeInfo) {
-        $("<dt>" + item["Property"] + "</dt>").appendTo(tab);
+        $("<dt>" + item["Key"] + "</dt>").appendTo(tab);
         $("<dd>" + item["Value"] + "</dd>").appendTo(tab);
     }
 
