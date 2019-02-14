@@ -18,8 +18,23 @@ function updateInfo(uid) {
         $("<dd>" + item["Value"] + "</dd>").appendTo(tab);
     }
 
+    const nodeType = $("dt:contains(NodeType) + dd").text();
+    const asString = $("dt:contains(AsString) + dd").text();
+    const name = $("dt:contains(Name) + dd").text();
+
     $($info).empty();
+    $($info).append(`
+        <div style='display:flex; align-items: stretch; margin-bottom: 10px'>
+            <div class='alert alert-info'>
+                <div style='font-size: large; text-align: center'>${nodeType}</div>
+                <div style='text-align: center'>${name} (${uid})</div>
+            </div>
+            <div class='alert alert-success' style='flex-grow: 1;margin-top:0;text-align: center'>${asString}</div>
+        </div>`);
     $($info).append(tab);
+
+    $("dd:contains(True)").css("color", "green");
+    $("dd:contains(False)").css("color", "red");
 }
 
 $(document).on("INIT_D3", (e, infoPath, graphPath) => {
@@ -29,8 +44,8 @@ $(document).on("INIT_D3", (e, infoPath, graphPath) => {
     $graph = graphPath;
 
     graphviz = d3.select($graph)
-        .attr("height", "100%")
-        .attr("width", "100%").graphviz()
+        .attr("height", $(graphPath).innerHeight())
+        .attr("width", $(graphPath).innerWidth()).graphviz()
         .transition(function () {
             return d3.transition("main")
                 .ease(d3.easeLinear)
@@ -48,8 +63,6 @@ $(document).on("INIT_GRAPH_INFO", (e, infoObject) => {
 
 $(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo) => {
     console.log("Event:", e.type, e);
-    console.log(dotNotation);
-    console.log(nodeInfo);
     
     graphviz.renderDot(dotNotation).on("end", () => {
         d3.selectAll(".node ellipse, .node polygon")
