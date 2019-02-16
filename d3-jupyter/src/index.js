@@ -11,16 +11,22 @@ var $graph;
 
 
 function updateInfo(uid) {
-    //let tab = $("<dl class='dl-horizontal'></div>")
-    //let table = $("<table class='table table-striped'><tr><th>Property</th><th>Value</th></tr></table>");
+    
+    let prevUid = $($info + " td:contains(Uid) + td").text()
+
+    console.log(prevUid, uid, prevUid === uid);
+
+    if (uid === prevUid)
+        return;
+    
     let table = $("<table class='table table-condensed table-striped' style='border-radius: 15px; table-layout: fixed;'></table>");
-    //let tbody = table.find("tbody");
+    
     console.log(uid, graphInfo[uid]);
+
 
     for (let item of graphInfo[uid]) {
         let key = item["Key"];
-        let value = item["Value"];
-        //let row = $(`<tr class="${key == "Name" ? "info" : ""}" ></tr>`)
+        let value = item["Value"];        
         let row = $(`<tr></tr>`)
 
         $(`<td style="
@@ -46,22 +52,14 @@ function updateInfo(uid) {
                 break;
         }
 
-        row.appendTo(table);
-        //$("<dd>" + item["$(`<dt>${item["Key"]}</dt>`).appendTo(table);"] + "</dd>").appendTo(tab);
+        row.appendTo(table);        
     }
 
-    // let nodeType = table.find("td:contains(NodeType) + td").text();
-    // let name = table.find("td:contains(Name) + td").text();
-    // let header = $(`
-    //     <div style="display:flex;align-items:center">
-    //         <div class="label label-info" style="font-size:large">${nodeType}</div>
-    //         <div class="label label-info">${name} (${uid})</div>
-    //     </div>
-    // `);
-
-    $($info).empty();
-    //$($info).append(header);
-    $($info).append(table);
+    $($info)
+        .hide()
+        .empty()
+        .append(table)
+        .fadeIn();
 }
 
 $(document).on("INIT_D3", (e, infoPath, graphPath) => {
@@ -112,9 +110,12 @@ $(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo, engine="dot") => {
     graphInfo = JSON.parse(nodeInfo);
 })
 
-$(document).on("RENDER_SERIES", (e, graphs) => {
+$(document).on("RENDER_SERIES", (e, graphs, engine="dot") => {
     console.log("Event:", e.type, e);
     console.log("Graph count:", graphs.length);
+    console.log("engine:", engine);
+    graphviz.engine(engine);
+
     const render = function (index) {
         if (index < graphs.length) {
             graphviz
