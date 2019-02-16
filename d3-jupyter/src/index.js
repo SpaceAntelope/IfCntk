@@ -88,9 +88,7 @@ $(document).on("INIT_GRAPH_INFO", (e, infoObject) => {
     graphInfo = infoObject;
 });
 
-$(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo) => {
-    console.log("Event:", e.type, e);
-
+function updateGraph(dotNotation) {
     graphviz.renderDot(dotNotation).on("end", () => {
         d3.selectAll(".node ellipse, .node polygon")
             .style("fill", "white")
@@ -103,6 +101,13 @@ $(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo) => {
                 $(document).trigger("NODE_CLICKED", [data, index, nodes[index]]);
             });
     });
+}
+
+$(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo, engine="dot") => {
+    console.log("Event:", e.type, e);
+
+    graphviz.engine(engine);
+    updateGraph(dotNotation);
 
     graphInfo = JSON.parse(nodeInfo);
 })
@@ -120,3 +125,4 @@ $(document).on("RENDER_SERIES", (e, graphs) => {
 
     render(0);
 })
+
