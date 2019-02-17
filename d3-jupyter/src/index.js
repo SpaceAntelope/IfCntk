@@ -12,18 +12,16 @@ var $graph;
 
 function updateInfo(uid) {
     
-    let prevUid = $($info + " td:contains(Uid) + td").text()
+    if ($info === "" || $info == null)
+        return;
 
-    console.log(prevUid, uid, prevUid === uid);
+    let prevUid = $($info + " td:contains(Uid) + td").text()
 
     if (uid === prevUid)
         return;
     
     let table = $("<table class='table table-condensed table-striped' style='border-radius: 15px; table-layout: fixed;'></table>");
     
-    console.log(uid, graphInfo[uid]);
-
-
     for (let item of graphInfo[uid]) {
         let key = item["Key"];
         let value = item["Value"];        
@@ -81,10 +79,6 @@ $(document).on("INIT_D3", (e, infoPath, graphPath) => {
     console.log("Graphviz:", graphviz);
 });
 
-$(document).on("INIT_GRAPH_INFO", (e, infoObject) => {
-    console.log("Event:", e.type, e);
-    graphInfo = infoObject;
-});
 
 function updateGraph(dotNotation) {
     graphviz.renderDot(dotNotation).on("end", () => {
@@ -107,7 +101,8 @@ $(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo, engine="dot") => {
     graphviz.engine(engine);
     updateGraph(dotNotation);
 
-    graphInfo = JSON.parse(nodeInfo);
+    if (nodeInfo !== "" && nodeInfo != null)
+        graphInfo = JSON.parse(nodeInfo);
 })
 
 $(document).on("RENDER_SERIES", (e, graphs, engine="dot") => {
