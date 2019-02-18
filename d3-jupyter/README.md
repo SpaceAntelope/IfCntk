@@ -1,4 +1,4 @@
-Keep Calm and Put Graphviz in IfSharp
+# Keep Calm and Put Graphviz in IfSharp
 
 ## Building and running on localhost
 
