@@ -14,8 +14,7 @@ notebooks/other/Internal/.paket/*
 paket.dependencies
 paket.lock
 *.html
-d3-jupyter/dist/bundle.js
-notebooks/cntk-tutorials/bundle.js
+notebooks/cntk-tutorials/*/.paket/*
 
 # User-specific files
 *.suo
@@ -342,6 +341,7 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
 
 
 
