@@ -53,31 +53,11 @@ function updateInfo(uid) {
         row.appendTo(table);        
     }
 
-<<<<<<< HEAD
-    const nodeType = $("dt:contains(NodeType) + dd").text();
-    const asString = $("dt:contains(AsString) + dd").text();
-    const name = $("dt:contains(Name) + dd").text();
-
-    $($info).empty();
-    $($info).append(`
-        <div style='display:flex; align-items: stretch; margin-bottom: 10px'>
-            <div class='alert alert-info'>
-                <div style='font-size: large; text-align: center'>${nodeType}</div>
-                <div style='text-align: center'>${name} (${uid})</div>
-            </div>
-            <div class='alert alert-success' style='flex-grow: 1;margin-top:0;text-align: center'>${asString}</div>
-        </div>`);
-    $($info).append(tab);
-
-    $("dd:contains(True)").css("color", "green");
-    $("dd:contains(False)").css("color", "red");
-=======
     $($info)
         .hide()
         .empty()
         .append(table)
         .fadeIn();
->>>>>>> 3a828d2a3cc9bdddb39c87487822b9c282533164
 }
 
 $(document).on("INIT_D3", (e, infoPath, graphPath) => {
@@ -100,13 +80,7 @@ $(document).on("INIT_D3", (e, infoPath, graphPath) => {
 });
 
 
-<<<<<<< HEAD
-$(document).on("RENDER_GRAPH", (e, dotNotation, nodeInfo) => {
-    console.log("Event:", e.type, e);
-    
-=======
 function updateGraph(dotNotation) {
->>>>>>> 3a828d2a3cc9bdddb39c87487822b9c282533164
     graphviz.renderDot(dotNotation).on("end", () => {
         d3.selectAll(".node ellipse, .node polygon")
             .style("fill", "white")
