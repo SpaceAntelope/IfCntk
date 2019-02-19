@@ -6,3 +6,9 @@ jupyter nbconvert --to html "C:\Users\cernu\Documents\Code\IfCntk\notebooks\cntk
 jupyter nbconvert --to html C:\Users\cernu\Documents\Code\IfCntk\notebooks\cntk-tutorials\101-LogReg-CPUOnly.ipynb
 
 "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\FSharp\fsi.exe" --exec C:\Users\cernu\Documents\Code\IfCntk\notebooks\other\Internal\convertJupyterToUmbracoRte.fsx C:\Users\cernu\Documents\Code\IfCntk\notebooks\cntk-tutorials\101-LogReg-CPUOnly.html
+
+
+
+jupyter nbconvert --to html  "E:\repos\DS-AI\IfCntk\notebooks\cntk-tutorials\CNTK102b - Graphviz Visualization\Graphviz Visualizations for CNTK in F# Notebooks.ipynb"
+
+"C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\FSharp\fsi.exe" --exec C:\Users\cernu\Documents\Code\IfCntk\notebooks\other\Internal\convertJupyterToUmbracoRte.fsx "E:\repos\DS-AI\IfCntk\notebooks\cntk-tutorials\CNTK102b - Graphviz Visualization\Graphviz Visualizations for CNTK in F# Notebooks.html"
