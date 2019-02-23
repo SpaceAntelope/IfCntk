@@ -11,16 +11,18 @@
 
 #r "netstandard"
 #r @"..\bin\Cntk.Core.Managed-2.6.dll"
-#load @"..\.paket\load\main.group.fsx"
+#load @"..\CNTK102 - Hidden Layers\.paket\load\main.group.fsx"
 
-// open CNTK
-// let device = DeviceDescriptor.CPUDevice
+open CNTK
+let device = DeviceDescriptor.CPUDevice
+let dataType = DataType.Float
+let initialization = CNTKLib.GlorotUniformInitializer(1.0)
 // #load "CntkHelpers.fsx"
 // open CntkHelpers
 open System
 open System.IO
 Environment.GetEnvironmentVariable("PATH")
-|> fun path -> sprintf "%s%c%s" path (Path.PathSeparator) (Path.GetFullPath("bin"))
+|> fun path -> sprintf "%s%c%s" path (Path.PathSeparator) (Path.GetFullPath("../bin"))
 |> fun path -> Environment.SetEnvironmentVariable("PATH", path)
 (***)
 
@@ -28,8 +30,8 @@ open CNTK
 DeviceDescriptor.UseDefaultDevice().Type
 |> printfn "Congratulations, you are using CNTK for: %A"
 
-#load "MiscellaneousHelpers.fsx"
-#load "NbVisual.fsx"
+#load "../fsx/MiscellaneousHelpers.fsx"
+#load "../fsx/NbVisual.fsx"
 //open MiscellaneousHelpers
 
 // Setup display support
@@ -366,4 +368,4 @@ modelSoftmaxOutputHeatmap "feature 1" "feature 2" [|0. .. 0.1 .. 15.|] NonLinear
 
 
 
-
+Function.Save("nonlinear2.model")

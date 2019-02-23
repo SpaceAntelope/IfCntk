@@ -25,30 +25,41 @@ function updateInfo(uid) {
     for (let item of graphInfo[uid]) {
         let key = item["Key"];
         let value = item["Value"];        
-        let row = $(`<tr></tr>`)
+        let row = $(`<tr style="border-bottom: solid aliceblue 1px;"></tr>`)
 
         $(`<td style="
             text-align:right; font-weight: bold; width: 125px; min-width: 125px;  
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${key}</td>`).appendTo(row);
 
+        //let valueCell = "<td style='text-align: left'>";
+        let valueCell = "";
+
         switch (value) {
             case "True":
-                $(`<td ><span class="label label-success">${value}<span></td>`).appendTo(row);
+                valueCell = `<span class="label label-success">${value}<span>`;
+                //$(`<td ><span class="label label-success">${value}<span></td>`).appendTo(row);
                 break;
             case "False":
-                $(`<td ><span class="label label-danger">${value}<span></td>`).appendTo(row);
+                valueCell = `<span class="label label-danger">${value}<span>`;
+                //$(`<td ><span class="label label-danger">${value}<span></td>`).appendTo(row);
                 break;
             default:
                 if ( key === "NodeType")                    
-                    $(`<td ><span class="label label-${ value === "Function" ? "info" : "warning" }">${value}<span></td>`).appendTo(row);
+                    valueCell = `<span class="label label-${ value === "Function" ? "info" : "warning" }">${value}<span>`;
+                    //$(`<td ><span class="label label-${ value === "Function" ? "info" : "warning" }">${value}<span></td>`).appendTo(row);
                 else if (key === "Name")
-                    $(`<td ><span style="font-size: large;text-align: center; margin: 5px;"><em>${value}</em></span></td>`).appendTo(row);
+                    valueCell = `<span style="font-size: large;text-align: center; margin: 5px;"><em>${value}</em></span>`;
+                    //$(`<td ><span style="font-size: large;text-align: center; margin: 5px;"><em>${value}</em></span></td>`).appendTo(row);
                 else if (value.match(/^\d+$/) != null )
-                $(`<td ><span style="font-family: 'Lucida console'">${value}<span></td>`).appendTo(row);
+                    valueCell = `<span style="font-family: 'Lucida console'">${value}<span>`;
+                    //$(`<td ><span style="font-family: 'Lucida console'">${value}<span></td>`).appendTo(row);
                 else
-                    $(`<td ><span>${value}<span></td>`).appendTo(row);
+                    valueCell = `<span>${value}<span>`;
+                    //$(`<td ><span>${value}<span></td>`).appendTo(row);
                 break;
         }
+
+        $(`<td style='text-align: left'>${valueCell}</td>`).appendTo(row);//.appendTo(table);
 
         row.appendTo(table);        
     }
