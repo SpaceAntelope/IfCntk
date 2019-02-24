@@ -31,35 +31,28 @@ function updateInfo(uid) {
             text-align:right; font-weight: bold; width: 125px; min-width: 125px;  
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${key}</td>`).appendTo(row);
 
-        //let valueCell = "<td style='text-align: left'>";
         let valueCell = "";
 
         switch (value) {
             case "True":
                 valueCell = `<span class="label label-success">${value}<span>`;
-                //$(`<td ><span class="label label-success">${value}<span></td>`).appendTo(row);
                 break;
             case "False":
                 valueCell = `<span class="label label-danger">${value}<span>`;
-                //$(`<td ><span class="label label-danger">${value}<span></td>`).appendTo(row);
                 break;
             default:
                 if ( key === "NodeType")                    
                     valueCell = `<span class="label label-${ value === "Function" ? "info" : "warning" }">${value}<span>`;
-                    //$(`<td ><span class="label label-${ value === "Function" ? "info" : "warning" }">${value}<span></td>`).appendTo(row);
                 else if (key === "Name")
                     valueCell = `<span style="font-size: large;text-align: center; margin: 5px;"><em>${value}</em></span>`;
-                    //$(`<td ><span style="font-size: large;text-align: center; margin: 5px;"><em>${value}</em></span></td>`).appendTo(row);
                 else if (value.match(/^\d+$/) != null )
                     valueCell = `<span style="font-family: 'Lucida console'">${value}<span>`;
-                    //$(`<td ><span style="font-family: 'Lucida console'">${value}<span></td>`).appendTo(row);
                 else
                     valueCell = `<span>${value}<span>`;
-                    //$(`<td ><span>${value}<span></td>`).appendTo(row);
                 break;
         }
 
-        $(`<td style='text-align: left'>${valueCell}</td>`).appendTo(row);//.appendTo(table);
+        $(`<td style='text-align: left'>${valueCell}</td>`).appendTo(row);
 
         row.appendTo(table);        
     }
