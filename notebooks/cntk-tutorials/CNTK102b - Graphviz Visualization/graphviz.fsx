@@ -416,6 +416,28 @@ let paramData<'T> (p : CNTK.Parameter) =
 let simpleModel = Function.Load("sample.model", DeviceDescriptor.CPUDevice)
 let model = Function.Load("sample2x25x10x2.model", DeviceDescriptor.CPUDevice)
 
+let pars = 
+    (Fun model).Decompose 
+    |> Array.filter (fun t -> match t with Par _ -> true | _ -> false)
+    |> Array.map(function Par p -> p)
+
+let vars = 
+    (Fun model).Decompose 
+    |> Array.filter (fun t -> match t with Var _ -> true | _ -> false)
+    |> Array.map(function Var p -> p)
+
+pars |> Array.map (fun p -> p.AsString())
+
+vars |> Array.map (fun p -> p.AsString())
+
+(new Parameter(vars.[0]))
+
+pars.[3].DataType
+
+paramData<float32> pars.[3]
+|> Seq.head
+|> Seq.chunkBySize (pars.[1].Shape.Dimensions.[0])
+
 let pars =
     model.Decompose
     |> Array.collect
@@ -428,6 +450,7 @@ paramData<float32> w
 |> Seq.map Array.ofSeq
 |> Array.ofSeq
 |> Array.length
+
 pars
 |> Array.map (fun v -> v.AsString())
 |> (Seq.map >> Array.ofSeq)
