@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        
+        .host {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: -99;
+        }
+
+        #graph {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: -100;
+        }
+
+        .draggable {
+            width: 300px;
+            min-width: 300px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            background-color: teal;
+            border: solid teal 3.5px;
+            z-index: 999;
+            margin: 3px;
+        }
+
+        .draggable-header {
+            padding: 5px;
+            padding-left: 20px;
+            color: white;
+        }
+
+        .draggable-content {
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 5px;
+            padding: 3px;
+            flex-grow: 1;
+        }
+
+        .draggable-info {
+            margin-left: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="host">
+        <div class="draggable">
+            <div class="draggable-header"><span>Node info for</span><span class="draggable-info"></span></div>
+            <div class="draggable-content" id="NodeInfo"></div>
+        </div>
+
+        <div id="graph"></div>
+    </div>
+
+    <!-- <div id="NodeInfo2" class="draggable card text-white bg-dark mb-3" style="width: 18rem; ">
+        <div id="NodeInfo2Header" class="card-header">Weights</div>
+        <div class="card-body">
+            <h5 class="card-title">Info card title</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+                content.</p>
+        </div>
+    </div> -->
+    <script src="http://d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>
+    <script src="https://unpkg.com/d3-graphviz@1.3.1/build/d3-graphviz.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/interactjs@1.3.4/dist/interact.min.js"></script>
+    <script>
+        $(window).resize(e => $(".draggable").css("max-height", window.innerHeight));
+
+        interact('.draggable')
+            .draggable({
+                onmove: function (event) {
+                    var target = event.target,
+                        // keep the dragged position in the data-x/data-y attributes
+                        x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                        y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    // translate the element
+                    target.style.webkitTransform =
+                        target.style.transform =
+                        'translate(' + x + 'px, ' + y + 'px)';
+
+                    // update the posiion attributes
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                },
+                // restrict: {
+                //     restriction: 'parent',
+                //     elementRect: { top: 1, left: 1, bottom: 1, right: 1 }
+                // },
+                inertia: true
+            })
+            .resizable({
+                // resize from all edges and corners
+                edges: { left: true, right: true, bottom: true, top: true },
+
+                // keep the edges inside the parent
+                restrictEdges: {
+                    outer: 'parent',
+                    endOnly: true,
+                },
+
+                // minimum size
+                // restrictSize: {
+                //     min: { width: 300, height: 250 },
+                // },
+
+                //inertia: true,
+            })
+            .on('resizemove', function (event) {
+                var target = event.target,
+                    x = (parseFloat(target.getAttribute('data-x')) || 0),
+                    y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+                // update the element's style
+                target.style.width = event.rect.width + 'px';
+                target.style.height = event.rect.height + 'px';
+
+                // translate when resizing from top or left edges
+                x += event.deltaRect.left;
+                y += event.deltaRect.top;
+
+                target.style.webkitTransform =
+                    target.style.transform =
+                    'translate(' + x + 'px, ' + y + 'px)';
+
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+
+                // $(target).find(".card-text").text(
+                //     Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height).toString()
+                // )
+            });
+
+        $(window).resize();
+    </script>
+    <script>
+        var dot = `
+    digraph {
+    Plus18_Output_0 [shape=invhouse, color=gray];
+Input1 [shape=invhouse, color=yellow];
+Block32_Output_0 [shape=invhouse, color=gray];
+Plus18_Output_0 [label="+"];
+Input1 [label="Labels"];
+Block32_Output_0 [label="CrossEntropyWithSoftmax"];
+Plus18_Output_0 -> Block32 [label="Output
++, [2], [*, #]"];
+Input1 -> Block32 [label="Input
+Labels, [2], [*, #]"];
+Block32 -> Block32_Output_0 [label="output"];
+Block32 [label="CrossEntropyWithSoftmax"];
+Plus18 [label="+"];
+Block32 [shape=ellipse, fontsize=20, penwidth=2, size=0.6];
+Plus18 [shape=ellipse, fontsize=20, penwidth=2, size=0.6];
+Times15_Output_0 [shape=invhouse, color=gray];
+Parameter14 [shape=diamond, color=green];
+Times15_Output_0 [label="@"];
+Parameter14 [label="Bias"];
+Times15_Output_0 -> Plus18 [label="Output
+@, [2], [*, #]"];
+Parameter14 -> Plus18 [label="Parameter
+Bias, [2], []"];
+Plus18 -> Plus18_Output_0 [label="output"];
+Times15 [label="@"];
+Times15 [shape=ellipse, fontsize=20, penwidth=2, size=0.6];
+Parameter13 [shape=diamond, color=green];
+StableSigmoid10_Output_0 [shape=invhouse, color=gray];
+Parameter13 [label="Weights"];
+StableSigmoid10_Output_0 [label="StableSigmoid10_Output_0"];
+Parameter13 -> Times15 [label="Parameter
+Weights, [2 x 50], []"];
+StableSigmoid10_Output_0 -> Times15 [label="Output
+StableSigmoid10_Output_0, [50], [*, #]"];
+Times15 -> Times15_Output_0 [label="output"];
+StableSigmoid10 [label="StableSigmoid10"];
+StableSigmoid10 [shape=ellipse, fontsize=20, penwidth=2, size=0.6];
+Plus7_Output_0 [shape=invhouse, color=gray];
+Plus7_Output_0 [label="+"];
+Plus7_Output_0 -> StableSigmoid10 [label="Output
++, [50], [*, #]"];
+StableSigmoid10 -> StableSigmoid10_Output_0 [label="output"];
+Plus7 [label="+"];
+Plus7 [shape=ellipse, fontsize=20, penwidth=2, size=0.6];
+Times4_Output_0 [shape=invhouse, color=gray];
+Parameter3 [shape=diamond, color=green];
+Times4_Output_0 [label="@"];
+Parameter3 [label="Bias"];
+Times4_Output_0 -> Plus7 [label="Output
+@, [50], [*, #]"];
+Parameter3 -> Plus7 [label="Parameter
+Bias, [50], []"];
+Plus7 -> Plus7_Output_0 [label="output"];
+Times4 [label="@"];
+Times4 [shape=ellipse, fontsize=20, penwidth=2, size=0.6];
+Parameter2 [shape=diamond, color=green];
+Input0 [shape=invhouse, color=yellow];
+Parameter2 [label="Weights"];
+Input0 [label="Features"];
+Parameter2 -> Times4 [label="Parameter
+Weights, [50 x 2], []"];
+Input0 -> Times4 [label="Input
+Features, [2], [*, #]"];
+Times4 -> Times4_Output_0 [label="output"];
+  }`;
+        var info = {
+            "Block32": { "NodeType": "Function", "AsString": "CrossEntropyWithSoftmax: Output('+', [2], [*, #]), Input('Labels', [2], [*, #]) -> Output('CrossEntropyWithSoftmax', [1], [*, #])", "Name": "CrossEntropyWithSoftmax", "Uid": "Block32", "RootFunction": "CrossEntropyWithSoftmax: Output('+', [2], [*, #]), Input('Labels', [2], [*, #]) -> Output('CrossEntropyWithSoftmax', [1], [*, #])", "Outputs": "Output('CrossEntropyWithSoftmax', [1], [*, #])", "Output": "Output('CrossEntropyWithSoftmax', [1], [*, #])", "OpName": "CrossEntropyWithSoftmax", "IsComposite": "False", "IsPrimitive": "True", "IsBlock": "True", "CurrentVersion": "24", "Arguments": "Output('+', [2], [*, #]), Input('Labels', [2], [*, #])", "Inputs": "Output('+', [2], [*, #]), Input('Labels', [2], [*, #])" },
+            "Plus18": { "NodeType": "Function", "AsString": "Plus: Output('@', [2], [*, #]) -> Output('+', [2], [*, #])", "Name": "+", "Uid": "Plus18", "RootFunction": "Plus: Output('@', [2], [*, #]) -> Output('+', [2], [*, #])", "Outputs": "Output('+', [2], [*, #])", "Output": "Output('+', [2], [*, #])", "OpName": "Plus", "IsComposite": "False", "IsPrimitive": "True", "IsBlock": "False", "CurrentVersion": "24", "Arguments": "Output('@', [2], [*, #])", "Inputs": "Output('@', [2], [*, #]), Parameter('Bias', [2], [])" },
+            "Times15": { "NodeType": "Function", "AsString": "Times: Output('StableSigmoid10_Output_0', [50], [*, #]) -> Output('@', [2], [*, #])", "Name": "@", "Uid": "Times15", "RootFunction": "Times: Output('StableSigmoid10_Output_0', [50], [*, #]) -> Output('@', [2], [*, #])", "Outputs": "Output('@', [2], [*, #])", "Output": "Output('@', [2], [*, #])", "OpName": "Times", "IsComposite": "False", "IsPrimitive": "True", "IsBlock": "False", "CurrentVersion": "24", "Arguments": "Output('StableSigmoid10_Output_0', [50], [*, #])", "Inputs": "Parameter('Weights', [2 x 50], []), Output('StableSigmoid10_Output_0', [50], [*, #])" },
+            "StableSigmoid10": { "NodeType": "Function", "AsString": "StableSigmoid: Output('+', [50], [*, #]) -> Output('StableSigmoid10_Output_0', [50], [*, #])", "Name": "", "Uid": "StableSigmoid10", "RootFunction": "StableSigmoid: Output('+', [50], [*, #]) -> Output('StableSigmoid10_Output_0', [50], [*, #])", "Outputs": "Output('StableSigmoid10_Output_0', [50], [*, #])", "Output": "Output('StableSigmoid10_Output_0', [50], [*, #])", "OpName": "StableSigmoid", "IsComposite": "False", "IsPrimitive": "True", "IsBlock": "False", "CurrentVersion": "24", "Arguments": "Output('+', [50], [*, #])", "Inputs": "Output('+', [50], [*, #])" },
+            "Plus7": { "NodeType": "Function", "AsString": "Plus: Output('@', [50], [*, #]) -> Output('+', [50], [*, #])", "Name": "+", "Uid": "Plus7", "RootFunction": "Plus: Output('@', [50], [*, #]) -> Output('+', [50], [*, #])", "Outputs": "Output('+', [50], [*, #])", "Output": "Output('+', [50], [*, #])", "OpName": "Plus", "IsComposite": "False", "IsPrimitive": "True", "IsBlock": "False", "CurrentVersion": "24", "Arguments": "Output('@', [50], [*, #])", "Inputs": "Output('@', [50], [*, #]), Parameter('Bias', [50], [])" },
+            "Times4": { "NodeType": "Function", "AsString": "Times: Input('Features', [2], [*, #]) -> Output('@', [50], [*, #])", "Name": "@", "Uid": "Times4", "RootFunction": "Times: Input('Features', [2], [*, #]) -> Output('@', [50], [*, #])", "Outputs": "Output('@', [50], [*, #])", "Output": "Output('@', [50], [*, #])", "OpName": "Times", "IsComposite": "False", "IsPrimitive": "True", "IsBlock": "False", "CurrentVersion": "24", "Arguments": "Input('Features', [2], [*, #])", "Inputs": "Parameter('Weights', [50 x 2], []), Input('Features', [2], [*, #])" }
+            ,
+            "Plus18_Output_0": { "NodeType": "Variable", "AsString": "Output('+', [2], [*, #])", "Shape": "[2]", "Name": "+", "Uid": "Plus18_Output_0", "Kind": "Output", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "False", "IsOutput": "True", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "Plus: Output('@', [2], [*, #]) -> Output('+', [2], [*, #])", "NeedsGradient": "True", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Input1": { "NodeType": "Variable", "AsString": "Input('Labels', [2], [*, #])", "Shape": "[2]", "Name": "Labels", "Uid": "Input1", "Kind": "Input", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "True", "IsOutput": "False", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "", "NeedsGradient": "False", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Block32_Output_0": { "NodeType": "Variable", "AsString": "Output('CrossEntropyWithSoftmax', [1], [*, #])", "Shape": "[1]", "Name": "CrossEntropyWithSoftmax", "Uid": "Block32_Output_0", "Kind": "Output", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "False", "IsOutput": "True", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "CrossEntropyWithSoftmax: Output('+', [2], [*, #]), Input('Labels', [2], [*, #]) -> Output('CrossEntropyWithSoftmax', [1], [*, #])", "NeedsGradient": "False", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Times15_Output_0": { "NodeType": "Variable", "AsString": "Output('@', [2], [*, #])", "Shape": "[2]", "Name": "@", "Uid": "Times15_Output_0", "Kind": "Output", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "False", "IsOutput": "True", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "Times: Output('StableSigmoid10_Output_0', [50], [*, #]) -> Output('@', [2], [*, #])", "NeedsGradient": "True", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Parameter14": { "NodeType": "Variable", "AsString": "Parameter('Bias', [2], [])", "Shape": "[2]", "Name": "Bias", "Uid": "Parameter14", "Kind": "Parameter", "DataType": "Float", "DynamicAxes": "[]", "IsSparse": "False", "IsInput": "False", "IsOutput": "False", "IsParameter": "True", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "", "NeedsGradient": "True", "CurrentValueTimeStamp": "0" },
+            "Parameter13": { "NodeType": "Variable", "AsString": "Parameter('Weights', [2 x 50], [])", "Shape": "[2 x 50]", "Name": "Weights", "Uid": "Parameter13", "Kind": "Parameter", "DataType": "Float", "DynamicAxes": "[]", "IsSparse": "False", "IsInput": "False", "IsOutput": "False", "IsParameter": "True", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "", "NeedsGradient": "True", "CurrentValueTimeStamp": "0" },
+            "StableSigmoid10_Output_0": { "NodeType": "Variable", "AsString": "Output('StableSigmoid10_Output_0', [50], [*, #])", "Shape": "[50]", "Name": "", "Uid": "StableSigmoid10_Output_0", "Kind": "Output", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "False", "IsOutput": "True", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "StableSigmoid: Output('+', [50], [*, #]) -> Output('StableSigmoid10_Output_0', [50], [*, #])", "NeedsGradient": "True", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Plus7_Output_0": { "NodeType": "Variable", "AsString": "Output('+', [50], [*, #])", "Shape": "[50]", "Name": "+", "Uid": "Plus7_Output_0", "Kind": "Output", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "False", "IsOutput": "True", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "Plus: Output('@', [50], [*, #]) -> Output('+', [50], [*, #])", "NeedsGradient": "True", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Times4_Output_0": { "NodeType": "Variable", "AsString": "Output('@', [50], [*, #])", "Shape": "[50]", "Name": "@", "Uid": "Times4_Output_0", "Kind": "Output", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "False", "IsOutput": "True", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "Times: Input('Features', [2], [*, #]) -> Output('@', [50], [*, #])", "NeedsGradient": "True", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." },
+            "Parameter3": { "NodeType": "Variable", "AsString": "Parameter('Bias', [50], [])", "Shape": "[50]", "Name": "Bias", "Uid": "Parameter3", "Kind": "Parameter", "DataType": "Float", "DynamicAxes": "[]", "IsSparse": "False", "IsInput": "False", "IsOutput": "False", "IsParameter": "True", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "", "NeedsGradient": "True", "CurrentValueTimeStamp": "0" },
+            "Parameter2": { "NodeType": "Variable", "AsString": "Parameter('Weights', [50 x 2], [])", "Shape": "[50 x 2]", "Name": "Weights", "Uid": "Parameter2", "Kind": "Parameter", "DataType": "Float", "DynamicAxes": "[]", "IsSparse": "False", "IsInput": "False", "IsOutput": "False", "IsParameter": "True", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "", "NeedsGradient": "True", "CurrentValueTimeStamp": "0" },
+            "Input0": { "NodeType": "Variable", "AsString": "Input('Features', [2], [*, #])", "Shape": "[2]", "Name": "Features", "Uid": "Input0", "Kind": "Input", "DataType": "Float", "DynamicAxes": "Axis('defaultDynamicAxis'), Axis('defaultBatchAxis')", "IsSparse": "False", "IsInput": "True", "IsOutput": "False", "IsParameter": "False", "IsConstant": "False", "IsPlaceholder": "False", "Owner": "", "NeedsGradient": "False", "CurrentValueTimeStamp": "Exception has been thrown by the target of an invocation." }
+        };
+
+        var viz = d3
+            .select("#graph")
+            .graphviz()
+            .on("initEnd", function () {
+
+                viz.renderDot(dot)
+                    .on("end", function () {
+
+                        let svg = d3.select("svg").style("fill", "transparent").attr("width", "100%");//.attr("width", "1750pt").attr("height","1000pt");
+
+                        let defs = svg.append("defs");
+
+                        let filter = defs
+                            .append("filter")
+                            .attr("id", "shadow")
+                            .attr("x", "-50%")
+                            .attr("y", "-50%")
+                            .attr("width", "200%")
+                            .attr("height", "200%");
+
+                        filter.append("feGaussianBlur")
+                            .attr("in", "SourceAlpha")
+                            .attr("stdDeviation", 3)
+                            .attr("result", "blur");
+
+                        filter
+                            .append("feOffset")
+                            .attr("in", "blur")
+                            .attr("dx", 3)
+                            .attr("dy", 3);
+
+                        filter.append("feComponentTransfer")
+                            .append("feFuncA").attr("type", "linear")
+                            .attr("slope", 0.35);
+
+                        var merge = filter.append("feMerge");
+                        merge.append("feMergeNode");
+                        merge.append("feMergeNode").attr("in", "SourceGraphic");
+
+                        d3.selectAll(".node ellipse, .node polygon")
+                            .style("fill", "white")
+                            .on("mouseover", (d, i, n) => d3.select(n[i]).style("filter", "url(#shadow)"))
+                            .on("mouseout", (d, i, n) => d3.select(n[i]).style("filter", null))
+                            .on("mouseover", (d, i, n) => {
+                                let uid = d.id.split(".")[2];
+                                updateInfo("#NodeInfo", uid);
+                            });
+                    });
+            });
+
+        function updateInfo(infoPath, uid) {
+
+            if (infoPath === "" || infoPath == null)
+                return;
+
+            let prevUid = $(infoPath + " td:contains(Uid) + td").text()
+
+            if (uid === prevUid)
+                return;
+
+
+
+            let table = $("<table class='table table-condensed table-striped' style='border-radius: 15px; table-layout: fixed;'></table>");
+            let data = info[uid];
+
+            $(".draggable-info").text(`${uid} (${data["Name"]})`);
+
+            for (let key in data) {
+                console.log(key, data[key]);
+                //let key = item["Key"];    
+                let value = data[key];
+                let row = $(`<tr style="border-bottom: solid aliceblue 1px;"></tr>`)
+
+                $(`<td title="${key}" style="
+            text-align:right; font-weight: bold; width: 125px; min-width: 125px;  
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${key}</td>`).appendTo(row);
+
+                let valueCell = "";
+
+                switch (value) {
+                    case "True":
+                        valueCell = `<span class="badge badge-success">${value}<span>`;
+                        break;
+                    case "False":
+                        valueCell = `<span class="badge badge-danger">${value}<span>`;
+                        break;
+                    default:
+                        if (key === "NodeType")
+                            valueCell = `<span class="badge badge-${value === "Function" ? "info" : "warning"}">${value}<span>`;
+                        else if (key === "Name")
+                            valueCell = `<span style="font-size: large;text-align: center; margin: 5px;"><em>${value}</em></span>`;
+                        else if (value == null)
+                            valueCell = `<span style="font-family: 'Lucida console'">${value}<span>`;
+                        else if (value.match(/^\d+$/) != null)
+                            valueCell = `<span style="font-family: 'Lucida console'">${value}<span>`;
+                        else
+                            valueCell = `<span>${value}<span>`;
+                        break;
+                }
+
+                $(`<td style='text-align: left'>${valueCell}</td>`).appendTo(row);
+
+                row.appendTo(table);
+            }
+
+            $(infoPath)
+                .hide()
+                .empty()
+                .append(table)
+                .fadeIn();
+        }
+
+    </script>
+</body>
+
+</html>
