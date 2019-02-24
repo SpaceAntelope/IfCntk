@@ -1,6 +1,6 @@
-#r @"C:\Users\Ares\Source\Repos\IfSharp.v3.0.1\IfSharp.Kernel.dll"
-
-//#r "IFSharp.Kernel"
+(* needs to be called from inside the notebook, otherwise full path to dll necessary
+ * #r "IFSharp.Kernel"
+ *)
 #load "MiscellaneousHelpers.fsx"
 #load "CntkHelpers.fsx"
 open MathNet.Numerics.LinearAlgebra 
