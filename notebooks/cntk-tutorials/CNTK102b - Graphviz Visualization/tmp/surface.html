@@ -4,9 +4,11 @@
 <head>
     <meta charset="utf-8">
     <style>
-        body {
-            font-family: sans;
-            padding: 10px;
+        svg {
+            border: 1px solid #DED8BF;
+            background-color: #f4f4d9;
+            width: 700px;
+            height: 400px;
         }
 
         svg path {
@@ -14,13 +16,13 @@
             stroke-width: 1px;
             stroke: rgba(0, 0, 0, 0.2);
         }
-
-        svg {
-            border: 1px solid #DED8BF;
-            background-color: #f4f4d9;
-            width: 700px;
-            height: 400px;
+        
+        /* body {
+            font-family: sans;
+            padding: 10px;
         }
+
+
 
         h1 {
             font-weight: normal;
@@ -51,7 +53,7 @@
             padding: 10px;
             margin: 2px;
             color: #fff;
-        }
+        } */
     </style>
 </head>
 
@@ -59,7 +61,7 @@
     <h1><a href="http://bl.ocks.org/supereggbert/aff58196188816576af0">D3.js Surface Plots</a></h1>
     <p>Drag graph to change view</p>
     <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="surface3d.js"></script>
+    <script src="http://bl.ocks.org/supereggbert/raw/aff58196188816576af0/surface3d.js"></script>
     <script>
         var yaw = 0.5, pitch = 0.5, width = 700, height = 400, drag = false;
 
@@ -81,20 +83,8 @@
                 data: dataFromFormular(function (x, y) {
                     return Math.sin(Math.sqrt(x * x + y * y) / 5 * Math.PI) * 50;
                 })
-            },
-            {
-                name: 'Dataset 2',
-                data: dataFromFormular(function (x, y) {
-                    return Math.cos(x / 15 * Math.PI) * Math.cos(y / 15 * Math.PI) * 60 + Math.cos(x / 8 * Math.PI) * Math.cos(y / 10 * Math.PI) * 40;
-                })
-            },
-            {
-                name: 'Dataset 3',
-                data: dataFromFormular(function (x, y) {
-                    return -(Math.cos(Math.sqrt(x * x + y * y) / 6 * Math.PI) + 1) * 300 / (Math.pow(x * x + y * y + 1, 0.3) + 1) + 50;
-                })
-            }
-        ];
+            }];
+
         var selected = surfaces[0];
 
         var ul = d3.select('body')
@@ -115,21 +105,21 @@
                 return "rgb(" + parseInt(c.r) + "," + parseInt(c.g) + "," + parseInt(c.b) + ")";
             });
 
-        ul.selectAll('li')
-            .data(surfaces)
-            .enter().append('li')
-            .html(function (d) {
-                return d.name
-            }).on('mousedown', function () {
-                md.data([d3.select(this).datum().data]).surface3D()
-                    .transition().duration(500)
-                    .surfaceHeight(function (d) {
-                        return d;
-                    }).surfaceColor(function (d) {
-                        var c = d3.hsl((d + 100), 0.6, 0.5).rgb();
-                        return "rgb(" + parseInt(c.r) + "," + parseInt(c.g) + "," + parseInt(c.b) + ")";
-                    });
-            });
+        // ul.selectAll('li')
+        //     .data(surfaces)
+        //     .enter().append('li')
+        //     .html(function (d) {
+        //         return d.name
+        //     }).on('mousedown', function () {
+        //         md.data([d3.select(this).datum().data]).surface3D()
+        //             .transition().duration(500)
+        //             .surfaceHeight(function (d) {
+        //                 return d;
+        //             }).surfaceColor(function (d) {
+        //                 var c = d3.hsl((d + 100), 0.6, 0.5).rgb();
+        //                 return "rgb(" + parseInt(c.r) + "," + parseInt(c.g) + "," + parseInt(c.b) + ")";
+        //             });
+        //     });
 
         svg.on("mousedown", function () {
             drag = [d3.mouse(this), yaw, pitch];

@@ -1,5 +1,3 @@
-open CNTK
-
 #r @"..\bin\Cntk.Core.Managed-2.6.dll"
 #r "netstandard"
 
@@ -57,6 +55,12 @@ type Tensor =
         | Var v -> v.AsString()
         | Par p -> p.AsString()
 
+    member this.IsParameter =
+        match this with
+        | Fun _ -> false
+        | Var v -> v.IsParameter
+        | Par _ -> true
+
     member this.Decompose =
         let visited = System.Collections.Generic.Dictionary<string, Tensor>()
 
@@ -84,10 +88,9 @@ type Tensor =
                 }
         Array.ofSeq (expand this)
 
-(Fun model).Decompose
-|> Array.map (fun f -> f.AsString())
-|> Array.iter (printfn "%s")
-
+// (Fun model).Decompose
+// |> Array.map (fun f -> f.AsString())
+// |> Array.iter (printfn "%s")
 type Function with
     member this.Decompose =
         let root = this
@@ -416,60 +419,18 @@ let paramData<'T> (p : CNTK.Parameter) =
 let simpleModel = Function.Load("sample.model", DeviceDescriptor.CPUDevice)
 let model = Function.Load("sample2x25x10x2.model", DeviceDescriptor.CPUDevice)
 
-let pars = 
-    (Fun model).Decompose 
-    |> Array.filter (fun t -> match t with Par _ -> true | _ -> false)
-    |> Array.map(function Par p -> p)
-
-let vars = 
-    (Fun model).Decompose 
-    |> Array.filter (fun t -> match t with Var _ -> true | _ -> false)
-    |> Array.map(function Var p -> p)
-
-pars |> Array.map (fun p -> p.AsString())
-
-vars |> Array.map (fun p -> p.AsString())
-
-(new Parameter(vars.[0]))
-
-pars.[3].DataType
-
-paramData<float32> pars.[3]
-|> Seq.head
-|> Seq.chunkBySize (pars.[1].Shape.Dimensions.[0])
-
-let pars =
-    model.Decompose
-    |> Array.collect
-           (fun f -> Array.append (f.Outputs.ToArray()) (f.Inputs.ToArray()))
-    |> Array.filter (fun v -> v.IsParameter)
-
-let w = new Parameter(pars.[0])
-
-paramData<float32> w
-|> Seq.map Array.ofSeq
+Function.Load("sample2x25x10x2.model", DeviceDescriptor.CPUDevice)
+|> Fun
+|> fun model -> model.Decompose
+|> Array.choose (function
+       | Par p -> Some p
+       | _ -> None)
+|> Array.map (fun p ->
+       printfn "%d %s" (p.Shape.Rank) (p.AsString())
+       p.Uid,
+       p
+       |> paramData<float32>
+       |> Seq.head
+       |> Array.ofSeq
+       |> Array.chunkBySize (p.Shape.[p.Shape.Rank - 1]))
 |> Array.ofSeq
-|> Array.length
-
-pars
-|> Array.map (fun v -> v.AsString())
-|> (Seq.map >> Array.ofSeq)
-
-let b =
-    pars
-    |> Array.find (fun v -> v.Name = "Bias")
-    |> Parameter
-
-let w =
-    pars
-    |> Array.find (fun v -> v.Name = "Weights" && v.Shape.[1] = 25)
-    |> Parameter
-
-w.Shape
-paramData<float32> w
-|> Seq.map Array.ofSeq
-|> Array.ofSeq
-w.Shape
-pars |> Array.map (fun v -> v.AsString())
-model.Decompose
-(Fun model).Decompose

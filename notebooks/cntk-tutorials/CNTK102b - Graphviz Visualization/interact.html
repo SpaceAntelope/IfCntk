@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
-        
         .host {
             position: absolute;
             top: 0;
@@ -15,7 +14,10 @@
             z-index: -99;
         }
 
-        #graph {
+        #graph,
+        #graph svg {
+            width: 100%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
@@ -25,7 +27,7 @@
         }
 
         .draggable {
-            width: 300px;
+            /* width: 300px; */
             min-width: 300px;
             border-radius: 5px;
             display: flex;
@@ -54,14 +56,45 @@
             margin-left: 5px;
             font-weight: bold;
         }
+
+        #ParameterData {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        #NodeInfo {
+            width: 420px;
+            min-width: 420px;
+            /* min-height: 100px; */
+        }
+
+        #ParameterData svg {
+            border: 1px solid #DED8BF;
+            background-color: #f4f4d9;
+            width: 700px;
+            height: 400px;
+        }
+
+        svg path {
+            stroke: #000;
+            stroke-width: 1px;
+            stroke: rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 
 <body>
     <div class="host">
-        <div class="draggable">
+        <div id="NodeInfo" class="draggable resizable">
             <div class="draggable-header"><span>Node info for</span><span class="draggable-info"></span></div>
-            <div class="draggable-content" id="NodeInfo"></div>
+            <div class="draggable-content">
+                <h4 style="text-align: center">Move your mouse over any node!</h4> 
+            </div>
+        </div>
+        <div id="ParameterData" class="draggable">
+            <div class="draggable-header"><span>Parameter data for</span><span class="draggable-info"></span></div>
+            <div class="draggable-content"></div>
         </div>
 
         <div id="graph"></div>
@@ -82,11 +115,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/interactjs@1.3.4/dist/interact.min.js"></script>
+    <script src="http://bl.ocks.org/supereggbert/raw/aff58196188816576af0/surface3d.js"></script>
     <script>
         $(window).resize(e => $(".draggable").css("max-height", window.innerHeight));
 
-        interact('.draggable')
+
+
+
+        interact('.resizable')
             .draggable({
+                allowFrom: ".draggable-header",
                 onmove: function (event) {
                     var target = event.target,
                         // keep the dragged position in the data-x/data-y attributes
@@ -150,10 +188,35 @@
                 // )
             });
 
+        interact('#ParameterData')
+            .draggable({
+                allowFrom: ".draggable-header",
+                onmove: function (event) {
+                    var target = event.target,
+                        // keep the dragged position in the data-x/data-y attributes
+                        x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                        y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    // translate the element
+                    target.style.webkitTransform =
+                        target.style.transform =
+                        'translate(' + x + 'px, ' + y + 'px)';
+
+                    // update the posiion attributes
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                },
+                // restrict: {
+                //     restriction: 'parent',
+                //     elementRect: { top: 1, left: 1, bottom: 1, right: 1 }
+                // },
+                inertia: true
+            });
+
         $(window).resize();
     </script>
     <script>
-        var dot = `
+        var dot = `   
     digraph {
     Plus18_Output_0 [shape=invhouse, color=gray];
 Input1 [shape=invhouse, color=yellow];
@@ -250,7 +313,7 @@ Times4 -> Times4_Output_0 [label="output"];
                 viz.renderDot(dot)
                     .on("end", function () {
 
-                        let svg = d3.select("svg").style("fill", "transparent").attr("width", "100%");//.attr("width", "1750pt").attr("height","1000pt");
+                        let svg = d3.select("svg").style("fill", "transparent");//.attr("width", "100%");//.attr("width", "1750pt").attr("height","1000pt");
 
                         let defs = svg.append("defs");
 
@@ -287,6 +350,7 @@ Times4 -> Times4_Output_0 [label="output"];
                             .on("mouseout", (d, i, n) => d3.select(n[i]).style("filter", null))
                             .on("mouseover", (d, i, n) => {
                                 let uid = d.id.split(".")[2];
+
                                 updateInfo("#NodeInfo", uid);
                             });
                     });
@@ -307,7 +371,7 @@ Times4 -> Times4_Output_0 [label="output"];
             let table = $("<table class='table table-condensed table-striped' style='border-radius: 15px; table-layout: fixed;'></table>");
             let data = info[uid];
 
-            $(".draggable-info").text(`${uid} (${data["Name"]})`);
+            $(infoPath + " .draggable-info").text(`${uid} (${data["Name"]})`);
 
             for (let key in data) {
                 console.log(key, data[key]);
@@ -347,13 +411,69 @@ Times4 -> Times4_Output_0 [label="output"];
                 row.appendTo(table);
             }
 
-            $(infoPath)
+            $(infoPath + " .draggable-content")
                 .hide()
                 .empty()
                 .append(table)
                 .fadeIn();
         }
 
+    </script>
+    <script>
+        var yaw = 0.5, pitch = 0.5, width = 700, height = 400, drag = false;
+
+        function dataFromFormular(func) {
+            var output = [];
+            for (var x = -20; x < 20; x++) {
+                var f0 = [];
+                output.push(f0);
+                for (var y = -20; y < 20; y++) {
+                    f0.push(func(x, y));
+                }
+            }
+            return output;
+        }
+
+        var surface = {
+            name: 'Dataset 1',
+            data: dataFromFormular(function (x, y) {
+                return Math.sin(Math.sqrt(x * x + y * y) / 5 * Math.PI) * 50;
+            })
+        };
+
+        var svg = d3.select('#ParameterData .draggable-content')
+            .append('svg')
+            .attr('height', height)
+            .attr('width', width);
+
+        var group = svg.append("g");
+
+        var md = group.data([surface.data])
+            .surface3D(width, height)
+            .surfaceHeight(function (d) {
+                return d;
+            }).surfaceColor(function (d) {
+                var c = d3.hsl((d + 100), 0.6, 0.5).rgb();
+                return "rgb(" + parseInt(c.r) + "," + parseInt(c.g) + "," + parseInt(c.b) + ")";
+            });
+
+        svg.on("mousedown", function () {
+            drag = [d3.mouse(this), yaw, pitch];
+        }).on("mouseup", function () {
+            drag = false;
+        }).on("mousemove", function () {
+            if (drag) {
+                var mouse = d3.mouse(this);
+                yaw = drag[1] - (mouse[0] - drag[0][0]) / 50;
+                pitch = drag[2] + (mouse[1] - drag[0][1]) / 50;
+                pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
+                md.turntable(yaw, pitch);
+            }
+        });
+
+        // $(()=>{            
+        //     drag = [d3.mouse(this), yaw, pitch];
+        // })        
     </script>
 </body>
 
